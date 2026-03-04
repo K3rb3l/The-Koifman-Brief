@@ -26,3 +26,9 @@ env:
     availability:
       - BUILD
       - RUNTIME
+
+  - variable: NEXT_PUBLIC_KEYSTATIC_GITHUB_APP_SLUG
+    value: the-koifman-brief-cms
+    availability:
+      - BUILD
+      - RUNTIME
