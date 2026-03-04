@@ -4,7 +4,7 @@ export function AuthorCard() {
   return (
     <div className="flex items-center gap-4 py-6 border-t border-border mt-12">
       <Image
-        src="/images/shahar-koifman.jpg"
+        src="https://storage.googleapis.com/the-koifman-brief-images/images/shahar-koifman.jpg"
         alt="Shahar Koifman"
         width={56}
         height={56}

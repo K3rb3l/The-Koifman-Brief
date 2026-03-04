@@ -14,7 +14,7 @@ export default function AboutPage() {
       <ScrollReveal>
         <div className="flex flex-col sm:flex-row items-start gap-8 mb-12">
           <PencilSketchImage
-            src="/images/shahar-koifman.jpg"
+            src="https://storage.googleapis.com/the-koifman-brief-images/images/shahar-koifman.jpg"
             alt="Shahar Koifman"
             width={160}
             height={160}
@@ -26,7 +26,7 @@ export default function AboutPage() {
               Shahar Koifman
             </h1>
             <p className="text-muted font-sans leading-relaxed">
-              Intelligence background with expertise spanning geopolitics, financial technology, and commercial real estate. Focused on the macro forces that create structural shifts — and the second-order consequences that most analysis misses.
+              Intelligence background with expertise spanning geopolitics, financial technology, and commercial real estate. Focused on the macro forces that create structural shifts -and the second-order consequences that most analysis misses.
             </p>
           </div>
         </div>
@@ -47,24 +47,24 @@ export default function AboutPage() {
               <li className="flex gap-3">
                 <span className="w-1.5 h-1.5 bg-accent rotate-45 mt-2.5 shrink-0" />
                 <div>
-                  <span className="font-semibold text-accent">Geopolitics</span> — The operating environment that shapes everything else. Policy shifts, sanctions regimes, and regional dynamics that create structural risks and opportunities.
+                  <span className="font-semibold text-accent">Geopolitics</span> -The operating environment that shapes everything else. Policy shifts, sanctions regimes, and regional dynamics that create structural risks and opportunities.
                 </div>
               </li>
               <li className="flex gap-3">
                 <span className="w-1.5 h-1.5 bg-accent rotate-45 mt-2.5 shrink-0" />
                 <div>
-                  <span className="font-semibold text-accent">FinTech</span> — Where regulatory frameworks meet technological disruption. Payments, digital assets, and the infrastructure that moves capital.
+                  <span className="font-semibold text-accent">FinTech</span> -Where regulatory frameworks meet technological disruption. Payments, digital assets, and the infrastructure that moves capital.
                 </div>
               </li>
               <li className="flex gap-3">
                 <span className="w-1.5 h-1.5 bg-accent rotate-45 mt-2.5 shrink-0" />
                 <div>
-                  <span className="font-semibold text-accent">Real Estate</span> — Where macro forces become tangible. Interest rates, demographic shifts, and policy changes manifest in physical assets and capital flows.
+                  <span className="font-semibold text-accent">Real Estate</span> -Where macro forces become tangible. Interest rates, demographic shifts, and policy changes manifest in physical assets and capital flows.
                 </div>
               </li>
             </div>
             <p>
-              Each piece traces implications beyond the obvious first-order effects. The goal is not prediction but clarity — understanding the forces at work well enough to make better decisions.
+              Each piece traces implications beyond the obvious first-order effects. The goal is not prediction but clarity -understanding the forces at work well enough to make better decisions.
             </p>
           </div>
         </section>

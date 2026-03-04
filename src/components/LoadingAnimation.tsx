@@ -5,23 +5,30 @@ import { useEffect, useState } from 'react'
 function clearIntroStyles() {
   document.documentElement.style.background = ''
   document.body.style.overflow = ''
+  // Hide the preload overlay (created outside React's tree via inline script)
+  const el = document.getElementById('tkb-preload')
+  if (el) el.style.display = 'none'
 }
 
 function shouldAnimate(): boolean {
-  const COOLDOWN_MS = 60 * 60 * 1000
-  const STORAGE_KEY = 'tkb-intro-last'
+  try {
+    const COOLDOWN_MS = 60 * 60 * 1000
+    const STORAGE_KEY = 'tkb-intro-last'
 
-  const navType = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming | undefined
-  const isHardLoad = !navType || navType.type === 'navigate' || navType.type === 'reload'
-  if (!isHardLoad) return false
+    const navType = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming | undefined
+    const isHardLoad = !navType || navType.type === 'navigate' || navType.type === 'reload'
+    if (!isHardLoad) return false
 
-  const lastShown = Number(localStorage.getItem(STORAGE_KEY) || 0)
-  if (Date.now() - lastShown < COOLDOWN_MS) return false
+    const lastShown = Number(localStorage.getItem(STORAGE_KEY) || 0)
+    if (Date.now() - lastShown < COOLDOWN_MS) return false
 
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return false
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return false
 
-  localStorage.setItem(STORAGE_KEY, String(Date.now()))
-  return true
+    localStorage.setItem(STORAGE_KEY, String(Date.now()))
+    return true
+  } catch {
+    return false
+  }
 }
 
 export function LoadingAnimation() {
@@ -32,6 +39,9 @@ export function LoadingAnimation() {
       clearIntroStyles()
       return
     }
+    // Hide CSS-only overlay now that React overlay takes over
+    const preload = document.getElementById('tkb-preload')
+    if (preload) preload.style.display = 'none'
     setPhase('animate')
 
     const exitTimer = setTimeout(() => {

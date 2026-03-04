@@ -9,6 +9,8 @@ import { ShareLinks } from '@/components/ShareLinks'
 import { PostNavigation } from '@/components/PostNavigation'
 import { SubscribeForm } from '@/components/SubscribeForm'
 import { ScrollReveal } from '@/components/ScrollReveal'
+import { ReadingProgress } from '@/components/ReadingProgress'
+import { CountUp } from '@/components/CountUp'
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -52,18 +54,18 @@ export default async function PostPage({ params }: Props) {
   const renderable = Markdoc.transform(node)
   const content = Markdoc.renderers.react(renderable, React)
 
-  // Get raw text for reading time
   const textContent = Markdoc.renderers.html(renderable) ?? ''
   const plainText = textContent.replace(/<[^>]*>/g, '')
   const readingTime = estimateReadingTime(plainText)
 
-  // Get all posts sorted by date for navigation
   const allPosts = await reader.collections.posts.all()
   const sorted = allPosts
     .filter((p) => p.entry.date)
     .sort((a, b) => new Date(b.entry.date!).getTime() - new Date(a.entry.date!).getTime())
 
   const currentIndex = sorted.findIndex((p) => p.slug === slug)
+  const briefNumber = sorted.length - currentIndex
+
   const previous = currentIndex < sorted.length - 1
     ? { slug: sorted[currentIndex + 1].slug, title: sorted[currentIndex + 1].entry.title }
     : null
@@ -71,45 +73,44 @@ export default async function PostPage({ params }: Props) {
     ? { slug: sorted[currentIndex - 1].slug, title: sorted[currentIndex - 1].entry.title }
     : null
 
-  // JSON-LD structured data
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Article',
     headline: post.title,
     description: post.excerpt,
     datePublished: post.date,
-    author: {
-      '@type': 'Person',
-      name: 'Shahar Koifman',
-    },
-    publisher: {
-      '@type': 'Organization',
-      name: 'The Koifman Brief',
-    },
+    author: { '@type': 'Person', name: 'Shahar Koifman' },
+    publisher: { '@type': 'Organization', name: 'The Koifman Brief' },
   }
 
   return (
     <>
+      <ReadingProgress />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <article>
-        <header className="mb-8">
-          <div className="animate-fade-in-up flex items-center gap-3 mb-3">
-            <span className="text-xs font-sans font-medium uppercase tracking-wider text-tag">
+        <header className="mb-10 text-center">
+          <div className="animate-fade-in-up flex items-center justify-center gap-3 mb-5">
+            <span className="text-[10px] font-sans font-medium tracking-[0.3em] uppercase text-muted">
+              No. <CountUp target={briefNumber} />
+            </span>
+            <span className="w-[3px] h-[3px] bg-border rounded-full" />
+            <span className="text-[11px] font-sans font-semibold uppercase tracking-[0.18em] text-accent">
               {slugToTitle(post.category)}
             </span>
-            <span className="text-xs text-muted font-sans">
-              {formatDate(post.date!)}
-            </span>
-            <span className="text-xs text-muted font-sans">
-              {readingTime}
-            </span>
           </div>
-          <h1 className="animate-fade-in-up-delay-1 font-serif text-3xl md:text-4xl font-bold tracking-tight text-foreground leading-tight">
+          <h1 className="animate-fade-in-up-delay-1 font-serif text-3xl md:text-4xl font-bold tracking-tight text-foreground leading-tight max-w-2xl mx-auto">
             {post.title}
           </h1>
+          <div className="animate-fade-in-up-delay-2 flex items-center justify-center gap-3 mt-5 text-[13px] text-muted font-sans">
+            <span>By Shahar Koifman</span>
+            <span>-</span>
+            <time>{formatDate(post.date!)}</time>
+            <span>-</span>
+            <span>{readingTime}</span>
+          </div>
         </header>
 
         <div className="decorative-rule"><span className="diamond" /></div>

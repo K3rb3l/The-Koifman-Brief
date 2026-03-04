@@ -43,6 +43,21 @@
   --gd: #D4A843;
 }
 
+/* Base color transition — all elements smoothly shift colors on hover/state change */
+*,
+*::before,
+*::after {
+  transition-property: color, background-color, border-color, fill, stroke;
+  transition-duration: 0.35s;
+  transition-timing-function: ease;
+}
+
+html.theme-transition *,
+html.theme-transition *::before,
+html.theme-transition *::after {
+  transition-duration: 0.5s !important;
+}
+
 body {
   @apply bg-background text-foreground font-sans antialiased;
   font-size: 16px;
@@ -168,6 +183,16 @@ body::before {
   to {
     stroke-dashoffset: 0;
   }
+}
+
+@keyframes undrawStroke {
+  from { stroke-dashoffset: 0; }
+  to { stroke-dashoffset: var(--dash-len, 128); }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
 }
 
 .draw-stroke {
@@ -393,6 +418,30 @@ body::before {
   }
 }
 
+/* View Transitions */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(-8px); }
+}
+
+::view-transition-old(root) {
+  animation: fadeOut 0.2s ease-out forwards;
+}
+
+::view-transition-new(root) {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+/* Prevent horizontal overflow / shrinking on mobile */
+html, body {
+  overflow-x: hidden;
+}
+
 /* Smooth scroll */
 html {
   scroll-behavior: smooth;
@@ -401,5 +450,10 @@ html {
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
+  }
+
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
   }
 }

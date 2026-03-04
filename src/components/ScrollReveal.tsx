@@ -13,8 +13,12 @@ export function ScrollReveal({ children, className = '', delay = 0 }: ScrollReve
   const [isVisible, setIsVisible] = useState(false)
 
   useEffect(() => {
-    // Respect reduced motion
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    try {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        setIsVisible(true)
+        return
+      }
+    } catch {
       setIsVisible(true)
       return
     }
