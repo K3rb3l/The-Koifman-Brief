@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
 import { ThemeProvider } from 'next-themes'
+import { Header } from '@/components/Header'
+import { Footer } from '@/components/Footer'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -28,7 +30,11 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          {children}
+          <Header />
+          <main className="max-w-3xl mx-auto px-6 py-12">
+            {children}
+          </main>
+          <Footer />
         </ThemeProvider>
       </body>
     </html>
