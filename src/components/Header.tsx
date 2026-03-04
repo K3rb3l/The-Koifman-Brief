@@ -25,6 +25,12 @@ export function Header() {
                 Home
               </Link>
               <Link
+                href="/articles"
+                className="link-underline text-muted hover:text-foreground transition-colors duration-200 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded-sm px-1 py-1"
+              >
+                Articles
+              </Link>
+              <Link
                 href="/about"
                 className="link-underline text-muted hover:text-foreground transition-colors duration-200 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded-sm px-1 py-1"
               >
