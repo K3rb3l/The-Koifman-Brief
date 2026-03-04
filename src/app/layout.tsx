@@ -28,10 +28,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body>
+      <body className="min-h-screen flex flex-col">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <Header />
-          <main className="max-w-3xl mx-auto px-6 py-12">
+          <main className="flex-1 max-w-3xl mx-auto w-full px-6 py-12">
             {children}
           </main>
           <Footer />

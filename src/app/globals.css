@@ -13,40 +13,205 @@
   --color-tag: var(--tg);
   --color-border: var(--bd);
   --color-link-hover: var(--lh);
+  --color-gold: var(--gd);
 
   --font-serif: 'EB Garamond', Georgia, serif;
   --font-sans: 'Lato', system-ui, sans-serif;
 }
 
 :root {
-  --bg: #FAFAF8;
-  --srf: #FFFFFF;
+  --bg: #F5F0E8;
+  --srf: #FEFCF8;
   --fg: #1A1A1A;
-  --mt: #6B6B6B;
-  --ac: #1B2A4A;
-  --tg: #2A6F6F;
-  --bd: #E5E5E3;
+  --mt: #7A7060;
+  --ac: #B8860B;
+  --tg: #6B5B3E;
+  --bd: #D4CFC4;
   --lh: #8B4513;
+  --gd: #B8860B;
 }
 
 .dark {
-  --bg: #141414;
-  --srf: #1E1E1E;
-  --fg: #E8E8E6;
-  --mt: #9A9A9A;
-  --ac: #7B9ACC;
-  --tg: #5BB8B8;
-  --bd: #2A2A2A;
-  --lh: #D4875A;
+  --bg: #0F0F0F;
+  --srf: #1A1816;
+  --fg: #E8E4DC;
+  --mt: #8A8070;
+  --ac: #D4A843;
+  --tg: #C4A86C;
+  --bd: #2A2622;
+  --lh: #E8B86D;
+  --gd: #D4A843;
 }
 
 body {
   @apply bg-background text-foreground font-sans antialiased;
   font-size: 16px;
+  position: relative;
+}
+
+/* Subtle paper noise texture */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  opacity: 0.03;
+  pointer-events: none;
+  z-index: 50;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
 }
 
 @media (min-width: 768px) {
   body {
     font-size: 18px;
+  }
+}
+
+/* Drop cap for first paragraph in articles */
+.drop-cap > p:first-of-type::first-letter {
+  float: left;
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 4em;
+  line-height: 0.8;
+  padding-right: 0.1em;
+  padding-top: 0.05em;
+  color: var(--ac);
+  font-weight: 600;
+}
+
+/* Classical decorative rule - thin line with diamond */
+.decorative-rule {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 2rem 0;
+}
+
+.decorative-rule::before,
+.decorative-rule::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--bd);
+}
+
+.decorative-rule::after {
+  content: '';
+}
+
+/* Diamond motif for decorative rule */
+.diamond {
+  width: 6px;
+  height: 6px;
+  background: var(--ac);
+  transform: rotate(45deg);
+  flex-shrink: 0;
+}
+
+/* Scroll reveal animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes drawLine {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out forwards;
+  opacity: 0;
+}
+
+.animate-fade-in-up-delay-1 {
+  animation: fadeInUp 0.6s ease-out 0.15s forwards;
+  opacity: 0;
+}
+
+.animate-fade-in-up-delay-2 {
+  animation: fadeInUp 0.6s ease-out 0.3s forwards;
+  opacity: 0;
+}
+
+.animate-draw-line {
+  animation: drawLine 0.8s ease-out 0.4s forwards;
+  width: 0;
+  overflow: hidden;
+}
+
+/* SVG line draw animation */
+@keyframes drawStroke {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.draw-stroke {
+  stroke-dasharray: var(--path-length, 200);
+  stroke-dashoffset: var(--path-length, 200);
+  animation: drawStroke 2s ease-out forwards;
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in-up,
+  .animate-fade-in-up-delay-1,
+  .animate-fade-in-up-delay-2 {
+    animation: none;
+    opacity: 1;
+  }
+
+  .animate-draw-line {
+    animation: none;
+    width: 100%;
+  }
+
+  .draw-stroke {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Pull quotes in articles */
+.prose blockquote {
+  border-left: 2px solid var(--ac) !important;
+  font-family: 'EB Garamond', Georgia, serif;
+  font-style: italic;
+  font-size: 1.25em;
+  color: var(--mt);
+  padding-left: 1.5rem;
+  margin: 2rem 0;
+}
+
+/* Prose link styling */
+.prose a {
+  color: var(--ac);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color 0.2s;
+}
+
+.prose a:hover {
+  color: var(--lh);
+}
+
+/* Smooth scroll */
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
   }
 }
