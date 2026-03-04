@@ -51,7 +51,7 @@ export function SubscribeForm() {
         <p className="text-sm text-muted font-sans mb-6">
           Concise analysis on macro forces and structural shifts. No spam.
         </p>
-        <form onSubmit={handleSubmit} className="flex gap-3 max-w-md mx-auto">
+        <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
           <input
             type="email"
             required

@@ -176,6 +176,22 @@ body::before {
   animation: drawStroke 2s ease-out forwards;
 }
 
+/* Loading screen golden glow pulse */
+@keyframes loadingGlow {
+  0% { opacity: 0; transform: scale(0.5); }
+  40% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.5); }
+}
+
+/* Golden dust particles floating upward */
+@keyframes particleFloat {
+  0% { opacity: 0; transform: translateY(0) translateX(0); }
+  8% { opacity: 0.6; }
+  50% { opacity: 0.4; }
+  85% { opacity: 0.2; }
+  100% { opacity: 0; transform: translateY(-40vh) translateX(var(--drift, 10px)); }
+}
+
 /* Respect reduced motion */
 @media (prefers-reduced-motion: reduce) {
   .animate-fade-in-up,
@@ -194,6 +210,7 @@ body::before {
     animation: none;
     stroke-dashoffset: 0;
   }
+
 }
 
 /* Pull quotes in articles */
@@ -337,6 +354,41 @@ body::before {
   .stagger-children > * {
     opacity: 1;
     transform: none;
+    animation: none;
+  }
+}
+
+/* Background geometric drift animation */
+@keyframes geometricDrift {
+  0% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(var(--drift-x, 20px), var(--drift-y, -15px));
+  }
+  50% {
+    transform: translate(calc(var(--drift-x, 20px) * -0.5), calc(var(--drift-y, -15px) * 1.2));
+  }
+  75% {
+    transform: translate(calc(var(--drift-x, 20px) * 0.8), calc(var(--drift-y, -15px) * -0.6));
+  }
+  100% {
+    transform: translate(0, 0);
+  }
+}
+
+.geometric-drift {
+  animation: geometricDrift linear infinite;
+}
+
+@media (max-width: 768px) {
+  .hidden-mobile {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .geometric-drift {
     animation: none;
   }
 }

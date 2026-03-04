@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { SubscribeForm } from '@/components/SubscribeForm'
 import { ScrollReveal } from '@/components/ScrollReveal'
+import { PencilSketchImage } from '@/components/PencilSketchImage'
 
 export const metadata: Metadata = {
   title: 'About',
@@ -12,7 +13,14 @@ export default function AboutPage() {
     <div className="max-w-[680px]">
       <ScrollReveal>
         <div className="flex flex-col sm:flex-row items-start gap-8 mb-12">
-          <div className="w-40 h-40 rounded-md bg-muted/20 shrink-0" />
+          <PencilSketchImage
+            src="/images/shahar-koifman.jpg"
+            alt="Shahar Koifman"
+            width={160}
+            height={160}
+            className="w-32 h-32 sm:w-40 sm:h-40 shrink-0 [&_img]:rounded-md"
+            priority
+          />
           <div>
             <h1 className="font-serif text-3xl font-bold text-foreground mb-4">
               Shahar Koifman
