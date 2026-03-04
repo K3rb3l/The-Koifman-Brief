@@ -5,16 +5,7 @@ import { PostCard } from '@/components/PostCard'
 import { SubscribeForm } from '@/components/SubscribeForm'
 import { ScrollReveal } from '@/components/ScrollReveal'
 
-const POSTS_PER_PAGE = 5
-
-export default async function HomePage({
-  searchParams,
-}: {
-  searchParams: Promise<{ page?: string }>
-}) {
-  const params = await searchParams
-  const currentPage = Math.max(1, parseInt(params.page || '1', 10))
-
+export default async function HomePage() {
   const posts = await reader.collections.posts.all()
 
   const sortedPosts = posts
@@ -25,12 +16,7 @@ export default async function HomePage({
       return dateB - dateA
     })
 
-  const totalPages = Math.max(1, Math.ceil(sortedPosts.length / POSTS_PER_PAGE))
-  const page = Math.min(currentPage, totalPages)
-  const startIndex = (page - 1) * POSTS_PER_PAGE
-  const pagePosts = sortedPosts.slice(startIndex, startIndex + POSTS_PER_PAGE)
-
-  const [featured, ...rest] = pagePosts
+  const [featured, ...rest] = sortedPosts
 
   return (
     <div>
@@ -67,28 +53,24 @@ export default async function HomePage({
             date={featured.entry.date!}
             category={featured.entry.category}
             excerpt={featured.entry.excerpt}
-            featured={page === 1}
+            featured
           />
         </div>
       )}
 
-      {page === 1 && (
-        <ScrollReveal>
-          <SubscribeForm />
-        </ScrollReveal>
-      )}
+      <ScrollReveal>
+        <SubscribeForm />
+      </ScrollReveal>
 
       {rest.length > 0 && (
         <ScrollReveal delay={0.1}>
           <div>
-            {page === 1 && (
-              <div className="flex items-center gap-3 mb-8">
-                <h2 className="font-serif text-sm font-semibold text-muted uppercase tracking-[0.15em] whitespace-nowrap">
-                  Previous Briefs
-                </h2>
-                <div className="flex-1 h-px bg-border" />
-              </div>
-            )}
+            <div className="flex items-center gap-3 mb-8">
+              <h2 className="font-serif text-sm font-semibold text-muted uppercase tracking-[0.15em] whitespace-nowrap">
+                Previous Briefs
+              </h2>
+              <div className="flex-1 h-px bg-border" />
+            </div>
             <div className="space-y-8">
               {rest.map((post, i) => (
                 <ScrollReveal key={post.slug} delay={i * 0.08}>
@@ -106,30 +88,6 @@ export default async function HomePage({
             </div>
           </div>
         </ScrollReveal>
-      )}
-
-      {totalPages > 1 && (
-        <nav className="flex items-center justify-center gap-4 mt-12 pt-8 border-t border-border font-sans text-sm">
-          {page > 1 && (
-            <Link
-              href={page === 2 ? '/' : `/?page=${page - 1}`}
-              className="px-4 py-2 text-accent hover:text-link-hover transition-colors duration-200"
-            >
-              &larr; Newer
-            </Link>
-          )}
-          <span className="text-muted">
-            Page {page} of {totalPages}
-          </span>
-          {page < totalPages && (
-            <Link
-              href={`/?page=${page + 1}`}
-              className="px-4 py-2 text-accent hover:text-link-hover transition-colors duration-200"
-            >
-              Older &rarr;
-            </Link>
-          )}
-        </nav>
       )}
 
       {sortedPosts.length === 0 && (

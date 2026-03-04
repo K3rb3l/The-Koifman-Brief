@@ -1,10 +1,7 @@
 import { config, fields, collection } from '@keystatic/core'
 
 export default config({
-  storage: {
-    kind: 'github',
-    repo: 'K3rb3l/The-Koifman-Brief',
-  },
+  storage: { kind: 'local' },
 
   collections: {
     posts: collection({
