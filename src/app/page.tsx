@@ -16,8 +16,6 @@ export default async function HomePage() {
       return dateB - dateA
     })
 
-  const [featured, ...rest] = sortedPosts
-
   return (
     <div>
       {/* Author header */}
@@ -45,50 +43,28 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {featured && (
-        <div className="animate-fade-in-up">
-          <PostCard
-            slug={featured.slug}
-            title={featured.entry.title}
-            date={featured.entry.date!}
-            category={featured.entry.category}
-            excerpt={featured.entry.excerpt}
-            featured
-          />
+      {sortedPosts.length > 0 && (
+        <div className="space-y-10">
+          {sortedPosts.map((post, i) => (
+            <ScrollReveal key={post.slug} delay={i * 0.08}>
+              <div className="border-b border-border pb-10 last:border-b-0">
+                <PostCard
+                  slug={post.slug}
+                  title={post.entry.title}
+                  date={post.entry.date!}
+                  category={post.entry.category}
+                  excerpt={post.entry.excerpt}
+                  featured
+                />
+              </div>
+            </ScrollReveal>
+          ))}
         </div>
       )}
 
       <ScrollReveal>
         <SubscribeForm />
       </ScrollReveal>
-
-      {rest.length > 0 && (
-        <ScrollReveal delay={0.1}>
-          <div>
-            <div className="flex items-center gap-3 mb-8">
-              <h2 className="font-serif text-sm font-semibold text-muted uppercase tracking-[0.15em] whitespace-nowrap">
-                Previous Briefs
-              </h2>
-              <div className="flex-1 h-px bg-border" />
-            </div>
-            <div className="space-y-8">
-              {rest.map((post, i) => (
-                <ScrollReveal key={post.slug} delay={i * 0.08}>
-                  <div className="border-b border-border pb-8 last:border-b-0">
-                    <PostCard
-                      slug={post.slug}
-                      title={post.entry.title}
-                      date={post.entry.date!}
-                      category={post.entry.category}
-                      excerpt={post.entry.excerpt}
-                    />
-                  </div>
-                </ScrollReveal>
-              ))}
-            </div>
-          </div>
-        </ScrollReveal>
-      )}
 
       {sortedPosts.length === 0 && (
         <p className="text-muted font-sans">No posts yet. Check back soon.</p>
