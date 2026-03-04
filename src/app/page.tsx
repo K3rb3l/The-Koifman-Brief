@@ -44,10 +44,10 @@ export default async function HomePage() {
       </section>
 
       {sortedPosts.length > 0 && (
-        <div className="space-y-10">
+        <div className="space-y-6">
           {sortedPosts.map((post, i) => (
             <ScrollReveal key={post.slug} delay={i * 0.08}>
-              <div className="border-b border-border pb-10 last:border-b-0">
+              <div className="border-b border-border pb-6 last:border-b-0">
                 <PostCard
                   slug={post.slug}
                   title={post.entry.title}
