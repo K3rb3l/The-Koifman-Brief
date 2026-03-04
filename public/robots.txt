@@ -1,0 +1,9 @@
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: https://thekoifmanbrief.com
+
+# Sitemaps
+Sitemap: https://thekoifmanbrief.com/sitemap.xml
