@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <div className="max-w-[680px]">
-      <div className="flex flex-col sm:flex-row items-start gap-8 mb-12">
+      <div className="animate-fade-in-up flex flex-col sm:flex-row items-start gap-8 mb-12">
         <div className="w-40 h-40 rounded-md bg-muted/20 shrink-0" />
         <div>
           <h1 className="font-serif text-3xl font-bold text-foreground mb-4">
@@ -21,6 +21,8 @@ export default function AboutPage() {
         </div>
       </div>
 
+      <div className="decorative-rule"><span className="diamond" /></div>
+
       <section className="mb-12">
         <h2 className="font-serif text-2xl font-semibold text-foreground mb-4">
           What This Publication Covers
@@ -29,17 +31,26 @@ export default function AboutPage() {
           <p>
             The Koifman Brief sits at the intersection of three domains that look disparate on the surface but share a common analytical thread.
           </p>
-          <ul className="list-none space-y-4 pl-0">
-            <li>
-              <strong className="text-accent">Geopolitics</strong> — The operating environment that shapes everything else. Policy shifts, sanctions regimes, and regional dynamics that create structural risks and opportunities.
+          <div className="space-y-5">
+            <li className="flex gap-3">
+              <span className="w-1.5 h-1.5 bg-accent rotate-45 mt-2.5 shrink-0" />
+              <div>
+                <span className="font-semibold text-accent">Geopolitics</span> — The operating environment that shapes everything else. Policy shifts, sanctions regimes, and regional dynamics that create structural risks and opportunities.
+              </div>
             </li>
-            <li>
-              <strong className="text-accent">FinTech</strong> — Where regulatory frameworks meet technological disruption. Payments, digital assets, and the infrastructure that moves capital.
+            <li className="flex gap-3">
+              <span className="w-1.5 h-1.5 bg-accent rotate-45 mt-2.5 shrink-0" />
+              <div>
+                <span className="font-semibold text-accent">FinTech</span> — Where regulatory frameworks meet technological disruption. Payments, digital assets, and the infrastructure that moves capital.
+              </div>
             </li>
-            <li>
-              <strong className="text-accent">Real Estate</strong> — Where macro forces become tangible. Interest rates, demographic shifts, and policy changes manifest in physical assets and capital flows.
+            <li className="flex gap-3">
+              <span className="w-1.5 h-1.5 bg-accent rotate-45 mt-2.5 shrink-0" />
+              <div>
+                <span className="font-semibold text-accent">Real Estate</span> — Where macro forces become tangible. Interest rates, demographic shifts, and policy changes manifest in physical assets and capital flows.
+              </div>
             </li>
-          </ul>
+          </div>
           <p>
             Each piece traces implications beyond the obvious first-order effects. The goal is not prediction but clarity — understanding the forces at work well enough to make better decisions.
           </p>

@@ -95,7 +95,7 @@ export default async function PostPage({ params }: Props) {
       />
       <article>
         <header className="mb-8">
-          <div className="flex items-center gap-3 mb-3">
+          <div className="animate-fade-in-up flex items-center gap-3 mb-3">
             <span className="text-xs font-sans font-medium uppercase tracking-wider text-tag">
               {slugToTitle(post.category)}
             </span>
@@ -106,12 +106,14 @@ export default async function PostPage({ params }: Props) {
               {readingTime}
             </span>
           </div>
-          <h1 className="font-serif text-3xl md:text-4xl font-bold tracking-tight text-foreground leading-tight">
+          <h1 className="animate-fade-in-up-delay-1 font-serif text-3xl md:text-4xl font-bold tracking-tight text-foreground leading-tight">
             {post.title}
           </h1>
         </header>
 
-        <div className="prose prose-lg max-w-none dark:prose-invert">
+        <div className="decorative-rule"><span className="diamond" /></div>
+
+        <div className="prose prose-lg max-w-none dark:prose-invert drop-cap">
           {content}
         </div>
 
