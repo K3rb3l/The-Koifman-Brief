@@ -12,10 +12,10 @@ export function SubscribeForm() {
     setStatus('loading')
 
     try {
-      const res = await fetch('/api/subscribe', {
+      const res = await fetch('https://buttondown.com/api/emails/embed-subscribe/thekoifmanbrief', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ email }),
       })
 
       if (!res.ok) throw new Error()
