@@ -77,7 +77,7 @@ export default function AboutPage() {
           </h2>
           <div className="flex gap-6 font-sans text-sm">
             <a
-              href="https://linkedin.com/in/shaharkoifman"
+              href="https://www.linkedin.com/in/shahar-koifman-b29a76226"
               target="_blank"
               rel="noopener noreferrer"
               className="text-accent hover:text-link-hover transition-colors duration-200 cursor-pointer"

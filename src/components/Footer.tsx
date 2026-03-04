@@ -21,7 +21,7 @@ export function Footer() {
               </p>
               <div className="flex sm:justify-end gap-4">
                 <a
-                  href="https://linkedin.com/in/shaharkoifman"
+                  href="https://www.linkedin.com/in/shahar-koifman-b29a76226"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-10 h-10 flex items-center justify-center text-muted hover:text-accent transition-colors duration-200 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded-sm"
