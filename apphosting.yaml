@@ -32,3 +32,8 @@ env:
     availability:
       - BUILD
       - RUNTIME
+
+  - variable: KEYSTATIC_URL
+    value: https://the-koifman-brief--the-koifman-brief.us-central1.hosted.app
+    availability:
+      - RUNTIME
