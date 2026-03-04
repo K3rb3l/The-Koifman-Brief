@@ -219,6 +219,128 @@ body::before {
   color: var(--lh);
 }
 
+/* Animated link underline — slides in from left on hover */
+.link-underline {
+  position: relative;
+  text-decoration: none;
+}
+
+.link-underline::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: var(--ac);
+  transition: width 0.3s ease-out;
+}
+
+.link-underline:hover::after {
+  width: 100%;
+}
+
+/* Card lift effect on hover */
+.card-lift {
+  transition: transform 0.25s ease-out, box-shadow 0.25s ease-out;
+}
+
+.card-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+}
+
+.dark .card-lift:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Golden glow on input focus */
+.input-glow:focus {
+  box-shadow: 0 0 0 3px rgba(184, 134, 11, 0.15);
+}
+
+.dark .input-glow:focus {
+  box-shadow: 0 0 0 3px rgba(212, 168, 67, 0.15);
+}
+
+/* Shimmer effect for category tags */
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.tag-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--ac) 0%,
+    var(--lh) 50%,
+    var(--ac) 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tag-shimmer {
+    background: none;
+    -webkit-text-fill-color: var(--ac);
+    animation: none;
+  }
+  .card-lift:hover {
+    transform: none;
+  }
+  .link-underline::after {
+    transition: none;
+  }
+}
+
+/* Subtle pulse for the subscribe button */
+@keyframes subtlePulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(184, 134, 11, 0); }
+  50% { box-shadow: 0 0 0 4px rgba(184, 134, 11, 0.1); }
+}
+
+.subscribe-pulse {
+  animation: subtlePulse 3s ease-in-out infinite;
+}
+
+.subscribe-pulse:hover {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .subscribe-pulse {
+    animation: none;
+  }
+}
+
+/* Stagger children reveal */
+.stagger-children > * {
+  opacity: 0;
+  transform: translateY(12px);
+  animation: fadeInUp 0.5s ease-out forwards;
+}
+
+.stagger-children > *:nth-child(1) { animation-delay: 0s; }
+.stagger-children > *:nth-child(2) { animation-delay: 0.08s; }
+.stagger-children > *:nth-child(3) { animation-delay: 0.16s; }
+.stagger-children > *:nth-child(4) { animation-delay: 0.24s; }
+.stagger-children > *:nth-child(5) { animation-delay: 0.32s; }
+.stagger-children > *:nth-child(6) { animation-delay: 0.4s; }
+.stagger-children > *:nth-child(7) { animation-delay: 0.48s; }
+.stagger-children > *:nth-child(8) { animation-delay: 0.56s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .stagger-children > * {
+    opacity: 1;
+    transform: none;
+    animation: none;
+  }
+}
+
 /* Smooth scroll */
 html {
   scroll-behavior: smooth;

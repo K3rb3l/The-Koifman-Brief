@@ -31,13 +31,13 @@ export function Header() {
             <nav className="hidden sm:flex items-center gap-6 text-sm font-sans">
               <Link
                 href="/"
-                className="text-muted hover:text-foreground transition-colors duration-200 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded-sm px-1 py-1"
+                className="link-underline text-muted hover:text-foreground transition-colors duration-200 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded-sm px-1 py-1"
               >
                 Home
               </Link>
               <Link
                 href="/about"
-                className="text-muted hover:text-foreground transition-colors duration-200 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded-sm px-1 py-1"
+                className="link-underline text-muted hover:text-foreground transition-colors duration-200 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded-sm px-1 py-1"
               >
                 About
               </Link>

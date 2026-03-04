@@ -8,6 +8,7 @@ import { AuthorCard } from '@/components/AuthorCard'
 import { ShareLinks } from '@/components/ShareLinks'
 import { PostNavigation } from '@/components/PostNavigation'
 import { SubscribeForm } from '@/components/SubscribeForm'
+import { ScrollReveal } from '@/components/ScrollReveal'
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -113,16 +114,26 @@ export default async function PostPage({ params }: Props) {
 
         <div className="decorative-rule"><span className="diamond" /></div>
 
-        <div className="prose prose-lg max-w-none dark:prose-invert drop-cap">
-          {content}
-        </div>
+        <ScrollReveal>
+          <div className="prose prose-lg max-w-none dark:prose-invert drop-cap">
+            {content}
+          </div>
+        </ScrollReveal>
 
-        <ShareLinks title={post.title} slug={slug} />
-        <AuthorCard />
-        <PostNavigation previous={previous} next={next} />
+        <ScrollReveal delay={0.1}>
+          <ShareLinks title={post.title} slug={slug} />
+        </ScrollReveal>
+        <ScrollReveal delay={0.15}>
+          <AuthorCard />
+        </ScrollReveal>
+        <ScrollReveal delay={0.2}>
+          <PostNavigation previous={previous} next={next} />
+        </ScrollReveal>
       </article>
 
-      <SubscribeForm />
+      <ScrollReveal delay={0.1}>
+        <SubscribeForm />
+      </ScrollReveal>
     </>
   )
 }
