@@ -149,6 +149,20 @@ body::before {
   overflow: hidden;
 }
 
+/* Loading animation - line expanding from center */
+@keyframes expandFromCenter {
+  from {
+    width: 0;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  to {
+    width: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+}
+
 /* SVG line draw animation */
 @keyframes drawStroke {
   to {
