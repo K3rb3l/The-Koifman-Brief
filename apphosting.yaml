@@ -11,9 +11,18 @@ env:
 
   - variable: KEYSTATIC_GITHUB_CLIENT_ID
     value: Iv23liF9p9Eg5YhBx3V5
+    availability:
+      - BUILD
+      - RUNTIME
 
   - variable: KEYSTATIC_GITHUB_CLIENT_SECRET
     secret: keystatic-github-client-secret
+    availability:
+      - BUILD
+      - RUNTIME
 
   - variable: KEYSTATIC_SECRET
     secret: keystatic-secret
+    availability:
+      - BUILD
+      - RUNTIME
