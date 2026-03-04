@@ -8,26 +8,12 @@ runConfig:
 env:
   - variable: BUTTONDOWN_API_KEY
     secret: buttondown-api-key
-    availability:
-      - RUNTIME
-
-  - variable: NEXT_PUBLIC_GA_MEASUREMENT_ID
-    value: ""
-    availability:
-      - BUILD
-      - RUNTIME
 
   - variable: KEYSTATIC_GITHUB_CLIENT_ID
-    value: "Iv23liF9p9Eg5YhBx3V5"
-    availability:
-      - RUNTIME
+    value: Iv23liF9p9Eg5YhBx3V5
 
   - variable: KEYSTATIC_GITHUB_CLIENT_SECRET
     secret: keystatic-github-client-secret
-    availability:
-      - RUNTIME
 
   - variable: KEYSTATIC_SECRET
     secret: keystatic-secret
-    availability:
-      - RUNTIME
