@@ -9,10 +9,21 @@
     ],
     "rewrites": [
       {
+        "source": "/posts/**",
+        "destination": "/posts.html"
+      },
+      {
+        "source": "/admin/**",
+        "destination": "/admin.html"
+      },
+      {
         "source": "**",
         "destination": "/404.html"
       }
     ]
+  },
+  "firestore": {
+    "rules": "firestore.rules"
   },
   "storage": {
     "rules": "storage.rules"
