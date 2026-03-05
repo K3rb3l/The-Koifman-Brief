@@ -9,20 +9,22 @@
     "lint": "eslint",
     "test": "vitest run",
     "test:watch": "vitest",
-    "postbuild": "next-sitemap"
+    "postbuild": "next-sitemap",
+    "migrate": "npx tsx scripts/migrate-posts.ts"
   },
   "dependencies": {
-    "@keystatic/core": "^0.5.48",
-    "@keystatic/next": "^5.0.4",
-    "@markdoc/markdoc": "^0.5.5",
     "@tailwindcss/typography": "^0.5.19",
+    "@uiw/react-md-editor": "^4.0.11",
+    "firebase": "^12.10.0",
     "gifuct-js": "^2.1.2",
     "lucide-react": "^0.577.0",
     "next": "16.1.6",
     "next-sitemap": "^4.2.3",
     "next-themes": "^0.4.6",
     "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "react-dom": "19.2.3",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
@@ -31,6 +33,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
+    "firebase-admin": "^13.7.0",
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^4.0.18"
