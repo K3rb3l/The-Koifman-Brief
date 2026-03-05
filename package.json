@@ -9,7 +9,8 @@
     "lint": "eslint",
     "test": "vitest run",
     "test:watch": "vitest",
-    "postbuild": "next-sitemap"
+    "postbuild": "next-sitemap",
+    "migrate": "npx tsx scripts/migrate-posts.ts"
   },
   "dependencies": {
     "@tailwindcss/typography": "^0.5.19",
@@ -32,6 +33,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
+    "firebase-admin": "^13.7.0",
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^4.0.18"
