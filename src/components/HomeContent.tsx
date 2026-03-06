@@ -11,24 +11,44 @@ import { AnimatedPortrait } from '@/components/AnimatedPortrait'
 import { PostCardSkeleton } from '@/components/PostCardSkeleton'
 import type { Post } from '@/types/post'
 
+function preloadImages(posts: Post[]): Promise<void> {
+  const urls = posts.slice(0, 3).map((p) => p.coverImageUrl).filter(Boolean) as string[]
+  if (urls.length === 0) return Promise.resolve()
+  return new Promise((resolve) => {
+    let loaded = 0
+    const done = () => { if (++loaded >= urls.length) resolve() }
+    urls.forEach((url) => {
+      const img = new Image()
+      img.onload = done
+      img.onerror = done
+      img.src = url
+    })
+    // Don't wait more than 2s for images
+    setTimeout(resolve, 2000)
+  })
+}
+
 export function HomeContent() {
-  const cached = typeof window !== 'undefined' ? getCachedPublishedPosts() : null
-  const [posts, setPosts] = useState<Post[]>(cached ?? [])
-  const [loading, setLoading] = useState(!cached)
+  const [posts, setPosts] = useState<Post[]>([])
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [didInit, setDidInit] = useState(false)
 
   useEffect(() => {
+    const cached = getCachedPublishedPosts()
+    if (cached) {
+      preloadImages(cached).then(() => {
+        setPosts(cached)
+        setLoading(false)
+      })
+    }
+    setDidInit(true)
+
     getPublishedPosts()
-      .then((data) => {
+      .then(async (data) => {
+        await preloadImages(data)
         setPosts(data)
         setLoading(false)
-        // Prefetch cover images for first page
-        data.slice(0, 3).forEach((post) => {
-          if (post.coverImageUrl) {
-            const img = new Image()
-            img.src = post.coverImageUrl
-          }
-        })
       })
       .catch((err) => {
         console.error('Failed to load posts:', err)
@@ -71,7 +91,7 @@ export function HomeContent() {
       ) : posts.length > 0 ? (
         <>
           <CursorSpotlight>
-            <section className="space-y-2 stagger-children">
+            <section className={`space-y-2 ${!didInit ? 'stagger-children' : ''}`}>
               {paginatedPosts.map((post, i) => (
                 <PostCard
                   key={post.slug}
@@ -80,6 +100,8 @@ export function HomeContent() {
                   date={post.date}
                   category={post.category}
                   excerpt={post.excerpt}
+                  coverImageUrl={post.coverImageUrl}
+                  coverAnimationUrl={post.coverAnimationUrl}
                   briefNumber={totalBriefs - ((page - 1) * POSTS_PER_PAGE + i)}
                   isLatest={page === 1 && i === 0}
                 />

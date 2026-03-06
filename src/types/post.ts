@@ -9,6 +9,7 @@ export type Post = {
   category: PostCategory
   excerpt: string
   coverImageUrl: string
+  coverAnimationUrl?: string
   body: string
   published: boolean
   createdAt: Timestamp
@@ -24,6 +25,8 @@ export type PostFormData = {
   published: boolean
   coverImage: File | null
   coverImageUrl: string
+  coverAnimation: File | null
+  coverAnimationUrl: string
 }
 
 export type Admin = {

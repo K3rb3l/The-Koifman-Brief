@@ -13,6 +13,7 @@ import { SubscribeForm } from '@/components/SubscribeForm'
 import { ScrollReveal } from '@/components/ScrollReveal'
 import { ReadingProgress } from '@/components/ReadingProgress'
 import { CountUp } from '@/components/CountUp'
+import { CoverMedia } from '@/components/CoverMedia'
 import type { Post } from '@/types/post'
 
 export function PostContent() {
@@ -81,10 +82,10 @@ export function PostContent() {
   const briefNumber = allPosts.length - currentIndex
 
   const previous = currentIndex < allPosts.length - 1
-    ? { slug: allPosts[currentIndex + 1].slug, title: allPosts[currentIndex + 1].title }
+    ? { slug: allPosts[currentIndex + 1].slug, title: allPosts[currentIndex + 1].title, coverImageUrl: allPosts[currentIndex + 1].coverImageUrl, coverAnimationUrl: allPosts[currentIndex + 1].coverAnimationUrl }
     : null
   const next = currentIndex > 0
-    ? { slug: allPosts[currentIndex - 1].slug, title: allPosts[currentIndex - 1].title }
+    ? { slug: allPosts[currentIndex - 1].slug, title: allPosts[currentIndex - 1].title, coverImageUrl: allPosts[currentIndex - 1].coverImageUrl, coverAnimationUrl: allPosts[currentIndex - 1].coverAnimationUrl }
     : null
 
   const readingTime = estimateReadingTime(post.body)
@@ -130,11 +131,12 @@ export function PostContent() {
         </header>
 
         {post.coverImageUrl && (
-          <div className="mb-10 -mx-4 sm:mx-0">
-            <img
-              src={post.coverImageUrl}
+          <div className="mb-10 -mx-4 sm:mx-0 relative cover-vignette cover-vignette-lg">
+            <CoverMedia
+              imageUrl={post.coverImageUrl}
+              animationUrl={post.coverAnimationUrl}
               alt={post.title}
-              className="w-full rounded-lg"
+              className="w-full rounded-lg dark:brightness-[0.85] dark:contrast-[1.1]"
             />
           </div>
         )}

@@ -5,9 +5,10 @@ import dynamic from 'next/dynamic'
 import { useRouter } from 'next/navigation'
 import { Timestamp } from 'firebase/firestore'
 import { savePost, generateSlug } from '@/lib/posts'
-import { uploadPostImage, uploadInlineImage } from '@/lib/storage'
+import { uploadPostImage, uploadPostAnimation, deletePostAnimation, uploadInlineImage } from '@/lib/storage'
+import { optimizeVideo } from '@/lib/optimize-video'
 import type { Post, PostCategory, PostFormData } from '@/types/post'
-import { Save, ArrowLeft, Upload, Image as ImageIcon } from 'lucide-react'
+import { Save, ArrowLeft, Upload, Image as ImageIcon, Film, X } from 'lucide-react'
 
 const MDEditor = dynamic(() => import('@uiw/react-md-editor'), { ssr: false })
 
@@ -26,6 +27,8 @@ export function ArticleEditor({ existingPost }: ArticleEditorProps) {
   const router = useRouter()
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
+  const [videoProgress, setVideoProgress] = useState('')
+  const [optimizedVideo, setOptimizedVideo] = useState<{ video: Blob; poster: Blob } | null>(null)
 
   const [form, setForm] = useState<PostFormData>({
     title: existingPost?.title ?? '',
@@ -36,6 +39,8 @@ export function ArticleEditor({ existingPost }: ArticleEditorProps) {
     published: existingPost?.published ?? false,
     coverImage: null,
     coverImageUrl: existingPost?.coverImageUrl ?? '',
+    coverAnimation: null,
+    coverAnimationUrl: existingPost?.coverAnimationUrl ?? '',
   })
 
   const updateField = <K extends keyof PostFormData>(key: K, value: PostFormData[K]) => {
@@ -48,6 +53,32 @@ export function ArticleEditor({ existingPost }: ArticleEditorProps) {
       updateField('coverImage', file)
       updateField('coverImageUrl', URL.createObjectURL(file))
     }
+  }
+
+  const handleAnimationChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    try {
+      const result = await optimizeVideo(file, setVideoProgress)
+      setOptimizedVideo(result)
+      updateField('coverAnimation', file)
+      updateField('coverAnimationUrl', URL.createObjectURL(result.video))
+    } catch (err) {
+      console.error('Video optimization failed:', err)
+      setError('Failed to optimize video. Try a smaller file.')
+    } finally {
+      setVideoProgress('')
+    }
+  }
+
+  const handleRemoveAnimation = async () => {
+    if (existingPost?.coverAnimationUrl) {
+      const slug = existingPost.slug
+      await deletePostAnimation(slug)
+    }
+    setOptimizedVideo(null)
+    updateField('coverAnimation', null)
+    updateField('coverAnimationUrl', '')
   }
 
   const handleInlineImageUpload = useCallback(async () => {
@@ -89,7 +120,13 @@ export function ArticleEditor({ existingPost }: ArticleEditorProps) {
       const slug = existingPost?.slug ?? generateSlug(form.title)
       let coverImageUrl = form.coverImageUrl
 
-      if (form.coverImage) {
+      let coverAnimationUrl = form.coverAnimationUrl
+
+      if (optimizedVideo) {
+        const result = await uploadPostAnimation(slug, optimizedVideo.video, optimizedVideo.poster)
+        coverAnimationUrl = result.animationUrl
+        coverImageUrl = result.imageUrl
+      } else if (form.coverImage) {
         coverImageUrl = await uploadPostImage(slug, form.coverImage)
       }
 
@@ -99,6 +136,7 @@ export function ArticleEditor({ existingPost }: ArticleEditorProps) {
         category: form.category,
         excerpt: form.excerpt,
         coverImageUrl,
+        coverAnimationUrl: coverAnimationUrl || undefined,
         body: form.body,
         published: form.published,
         createdAt: existingPost?.createdAt ?? Timestamp.now(),
@@ -212,6 +250,61 @@ export function ArticleEditor({ existingPost }: ArticleEditorProps) {
               alt="Cover preview"
               className="h-16 rounded object-cover"
             />
+          )}
+        </div>
+        <details className="mt-3">
+          <summary className="text-[11px] text-muted/70 font-sans cursor-pointer hover:text-accent transition-colors select-none">
+            Image generation prompt template
+          </summary>
+          <div className="mt-2 p-3 rounded border border-border/50 bg-surface/50">
+            <p className="text-[11px] text-muted font-sans leading-relaxed select-all">
+              Warm sepia ink sketch illustration, drawn with dark brown ink on aged cream parchment paper. Minimalist editorial style — simple composition with few elements, clean negative space, no clutter. Fine pen strokes and light crosshatching for shading. Warm tones — dark brown, burnt umber, and antique gold accents. Subject: [DESCRIBE YOUR SUBJECT HERE]. Keep it sparse and simple — focus on the main subject with minimal background. The style should resemble a minimalist newspaper editorial sketch from a vintage publication. No bright colors, no digital effects. Warm muted palette only. Aspect ratio 16:9.
+            </p>
+          </div>
+        </details>
+      </div>
+
+      {/* Cover Animation */}
+      <div>
+        <label className="block text-xs text-muted font-sans mb-1">Cover Animation (MP4)</label>
+        <div className="flex items-center gap-4">
+          <label className="flex items-center gap-2 px-4 py-2 border border-border rounded text-sm font-sans text-muted hover:text-foreground cursor-pointer transition-colors">
+            <Film size={16} /> Upload MP4
+            <input
+              type="file"
+              accept="video/mp4"
+              onChange={handleAnimationChange}
+              className="hidden"
+            />
+          </label>
+          {videoProgress && (
+            <span className="text-xs font-sans text-accent animate-pulse">{videoProgress}</span>
+          )}
+          {form.coverAnimationUrl && !videoProgress && (
+            <div className="flex items-center gap-3">
+              <video
+                src={form.coverAnimationUrl}
+                autoPlay
+                muted
+                loop
+                playsInline
+                className="h-16 rounded object-cover"
+                style={{ aspectRatio: '16/9' }}
+              />
+              {optimizedVideo && (
+                <span className="text-[11px] text-muted font-sans">
+                  {(optimizedVideo.video.size / 1024 / 1024).toFixed(1)} MB
+                </span>
+              )}
+              <button
+                type="button"
+                onClick={handleRemoveAnimation}
+                className="text-muted hover:text-red-500 transition-colors"
+                title="Remove animation"
+              >
+                <X size={16} />
+              </button>
+            </div>
           )}
         </div>
       </div>

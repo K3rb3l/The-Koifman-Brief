@@ -13,6 +13,8 @@
     "migrate": "npx tsx scripts/migrate-posts.ts"
   },
   "dependencies": {
+    "@ffmpeg/ffmpeg": "^0.12.15",
+    "@ffmpeg/util": "^0.12.2",
     "@tailwindcss/typography": "^0.5.19",
     "@uiw/react-md-editor": "^4.0.11",
     "firebase": "^12.10.0",

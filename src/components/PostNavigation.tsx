@@ -1,7 +1,8 @@
 import Link from 'next/link'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { CoverMedia } from './CoverMedia'
 
-type NavItem = { slug: string; title: string; coverImageUrl?: string }
+type NavItem = { slug: string; title: string; coverImageUrl?: string; coverAnimationUrl?: string }
 
 type PostNavigationProps = {
   previous: NavItem | null
@@ -21,7 +22,7 @@ export function PostNavigation({ previous, next }: PostNavigationProps) {
           >
             <div className="w-full h-0 pb-[56.25%] relative rounded overflow-hidden cover-vignette mb-2">
               {previous.coverImageUrl ? (
-                <img src={previous.coverImageUrl} alt={previous.title} className="absolute inset-0 w-full h-full object-cover dark:brightness-[0.85]" />
+                <CoverMedia imageUrl={previous.coverImageUrl} animationUrl={previous.coverAnimationUrl} alt={previous.title} className="absolute inset-0 w-full h-full object-cover dark:brightness-[0.85]" />
               ) : (
                 <div className="absolute inset-0 bg-border/30" />
               )}
@@ -44,7 +45,7 @@ export function PostNavigation({ previous, next }: PostNavigationProps) {
           >
             <div className="w-full h-0 pb-[56.25%] relative rounded overflow-hidden cover-vignette mb-2">
               {next.coverImageUrl ? (
-                <img src={next.coverImageUrl} alt={next.title} className="absolute inset-0 w-full h-full object-cover dark:brightness-[0.85]" />
+                <CoverMedia imageUrl={next.coverImageUrl} animationUrl={next.coverAnimationUrl} alt={next.title} className="absolute inset-0 w-full h-full object-cover dark:brightness-[0.85]" />
               ) : (
                 <div className="absolute inset-0 bg-border/30" />
               )}

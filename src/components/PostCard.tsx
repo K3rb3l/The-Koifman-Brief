@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { formatDate, slugToTitle } from '@/lib/utils'
 import { CountUp } from './CountUp'
+import { CoverMedia } from './CoverMedia'
 
 type PostCardProps = {
   slug: string
@@ -8,11 +9,13 @@ type PostCardProps = {
   date: string
   category: string
   excerpt: string
+  coverImageUrl?: string
+  coverAnimationUrl?: string
   briefNumber?: number
   isLatest?: boolean
 }
 
-export function PostCard({ slug, title, date, category, excerpt, briefNumber, isLatest }: PostCardProps) {
+export function PostCard({ slug, title, date, category, excerpt, coverImageUrl, coverAnimationUrl, briefNumber, isLatest }: PostCardProps) {
   return (
     <article className="group">
       <Link
@@ -44,15 +47,44 @@ export function PostCard({ slug, title, date, category, excerpt, briefNumber, is
           </time>
         </div>
 
-        <h2 className={`font-serif font-bold text-foreground leading-tight tracking-tight group-hover:text-accent transition-colors duration-500 ease-out ${
-          isLatest ? 'text-2xl sm:text-[1.85rem]' : 'text-xl sm:text-2xl'
-        }`}>
-          {title}
-        </h2>
+        {coverImageUrl && (
+          <div className="sm:hidden relative cover-vignette mb-3" style={{ aspectRatio: '16/9' }}>
+            <CoverMedia
+              imageUrl={coverImageUrl}
+              animationUrl={coverAnimationUrl}
+              alt={title}
+              className="absolute inset-0 w-full h-full object-cover rounded dark:brightness-[0.85] dark:contrast-[1.1]"
+            />
+          </div>
+        )}
 
-        <p className="mt-3 text-muted/70 font-sans text-[15px] leading-relaxed line-clamp-3 group-hover:text-foreground/60 transition-colors duration-500 ease-out">
-          {excerpt}
-        </p>
+        <div className={coverImageUrl ? 'sm:flex sm:gap-5' : ''}>
+          <div className="flex-1 min-w-0">
+            <h2 className={`font-serif font-bold text-foreground leading-tight tracking-tight group-hover:text-accent transition-colors duration-500 ease-out ${
+              isLatest ? 'text-2xl sm:text-[1.85rem]' : 'text-xl sm:text-2xl'
+            }`}>
+              {title}
+            </h2>
+
+            <p className="mt-3 text-muted/70 font-sans text-[15px] leading-relaxed line-clamp-3 group-hover:text-foreground/60 transition-colors duration-500 ease-out">
+              {excerpt}
+            </p>
+          </div>
+
+          {coverImageUrl && (
+            <div
+              className="hidden sm:block flex-shrink-0 relative self-start mt-1 cover-vignette"
+              style={{ width: '10rem', aspectRatio: '16/9' }}
+            >
+              <CoverMedia
+                imageUrl={coverImageUrl}
+                animationUrl={coverAnimationUrl}
+                alt={title}
+                className="absolute inset-0 w-full h-full object-cover rounded dark:brightness-[0.85] dark:contrast-[1.1]"
+              />
+            </div>
+          )}
+        </div>
 
         <span
           className="inline-flex items-center gap-1 mt-4 text-[13px] font-sans font-medium text-accent opacity-0 group-hover:opacity-100"
