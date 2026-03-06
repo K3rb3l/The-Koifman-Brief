@@ -9,10 +9,6 @@
     ],
     "rewrites": [
       {
-        "source": "/posts/**",
-        "destination": "/posts.html"
-      },
-      {
         "source": "/admin/**",
         "destination": "/admin.html"
       },

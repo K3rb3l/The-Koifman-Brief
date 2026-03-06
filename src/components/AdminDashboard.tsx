@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { signOut } from 'firebase/auth'
-import { auth } from '@/lib/firebase'
+import { getAuth, signOut } from 'firebase/auth'
+import { app } from '@/lib/firebase'
 import { useAuth } from '@/contexts/AuthContext'
 import { getAllPosts, deletePost as removePost } from '@/lib/posts'
 import { getAllAdmins, addAdmin, removeAdmin } from '@/lib/admins'
@@ -28,7 +28,10 @@ export function AdminDashboard() {
     setLoading(false)
   }
 
-  useEffect(() => { loadData() }, [])
+  useEffect(() => {
+    if (!user) return
+    loadData()
+  }, [user])
 
   const handleDelete = async (slug: string, title: string) => {
     if (!confirm(`Delete "${title}"? This cannot be undone.`)) return
@@ -76,7 +79,7 @@ export function AdminDashboard() {
             <Plus size={16} /> New Article
           </Link>
           <button
-            onClick={() => signOut(auth)}
+            onClick={() => signOut(getAuth(app))}
             className="flex items-center gap-2 px-4 py-2 border border-border text-muted font-sans text-sm rounded hover:text-foreground transition-colors"
           >
             <LogOut size={16} /> Sign Out

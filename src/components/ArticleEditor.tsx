@@ -5,10 +5,10 @@ import dynamic from 'next/dynamic'
 import { useRouter } from 'next/navigation'
 import { Timestamp } from 'firebase/firestore'
 import { savePost, generateSlug } from '@/lib/posts'
-import { uploadPostImage, uploadPostAnimation, deletePostAnimation, uploadInlineImage } from '@/lib/storage'
-import { optimizeVideo } from '@/lib/optimize-video'
+import { uploadPostAnimation, deletePostAnimation, uploadInlineImage } from '@/lib/storage'
+import { extractPosterFrame } from '@/lib/optimize-video'
 import type { Post, PostCategory, PostFormData } from '@/types/post'
-import { Save, ArrowLeft, Upload, Image as ImageIcon, Film, X } from 'lucide-react'
+import { Save, ArrowLeft, Image as ImageIcon, Film, X } from 'lucide-react'
 
 const MDEditor = dynamic(() => import('@uiw/react-md-editor'), { ssr: false })
 
@@ -28,7 +28,7 @@ export function ArticleEditor({ existingPost }: ArticleEditorProps) {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [videoProgress, setVideoProgress] = useState('')
-  const [optimizedVideo, setOptimizedVideo] = useState<{ video: Blob; poster: Blob } | null>(null)
+  const [pendingAnimation, setPendingAnimation] = useState<{ video: File; poster: Blob } | null>(null)
 
   const [form, setForm] = useState<PostFormData>({
     title: existingPost?.title ?? '',
@@ -47,25 +47,18 @@ export function ArticleEditor({ existingPost }: ArticleEditorProps) {
     setForm((prev) => ({ ...prev, [key]: value }))
   }
 
-  const handleCoverImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) {
-      updateField('coverImage', file)
-      updateField('coverImageUrl', URL.createObjectURL(file))
-    }
-  }
-
   const handleAnimationChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
     try {
-      const result = await optimizeVideo(file, setVideoProgress)
-      setOptimizedVideo(result)
+      setVideoProgress('Extracting poster frame...')
+      const poster = await extractPosterFrame(file)
+      setPendingAnimation({ video: file, poster })
       updateField('coverAnimation', file)
-      updateField('coverAnimationUrl', URL.createObjectURL(result.video))
+      updateField('coverAnimationUrl', URL.createObjectURL(file))
     } catch (err) {
-      console.error('Video optimization failed:', err)
-      setError('Failed to optimize video. Try a smaller file.')
+      console.error('Video processing failed:', err)
+      setError(`Failed to process video: ${err instanceof Error ? err.message : 'Unknown error'}`)
     } finally {
       setVideoProgress('')
     }
@@ -76,7 +69,7 @@ export function ArticleEditor({ existingPost }: ArticleEditorProps) {
       const slug = existingPost.slug
       await deletePostAnimation(slug)
     }
-    setOptimizedVideo(null)
+    setPendingAnimation(null)
     updateField('coverAnimation', null)
     updateField('coverAnimationUrl', '')
   }
@@ -122,12 +115,10 @@ export function ArticleEditor({ existingPost }: ArticleEditorProps) {
 
       let coverAnimationUrl = form.coverAnimationUrl
 
-      if (optimizedVideo) {
-        const result = await uploadPostAnimation(slug, optimizedVideo.video, optimizedVideo.poster)
+      if (pendingAnimation) {
+        const result = await uploadPostAnimation(slug, pendingAnimation.video, pendingAnimation.poster)
         coverAnimationUrl = result.animationUrl
         coverImageUrl = result.imageUrl
-      } else if (form.coverImage) {
-        coverImageUrl = await uploadPostImage(slug, form.coverImage)
       }
 
       await savePost(slug, {
@@ -231,28 +222,9 @@ export function ArticleEditor({ existingPost }: ArticleEditorProps) {
         </div>
       </div>
 
-      {/* Cover Image */}
+      {/* Image Prompt Template */}
       <div>
-        <label className="block text-xs text-muted font-sans mb-1">Cover Image</label>
-        <div className="flex items-center gap-4">
-          <label className="flex items-center gap-2 px-4 py-2 border border-border rounded text-sm font-sans text-muted hover:text-foreground cursor-pointer transition-colors">
-            <Upload size={16} /> Choose Image
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleCoverImageChange}
-              className="hidden"
-            />
-          </label>
-          {form.coverImageUrl && (
-            <img
-              src={form.coverImageUrl}
-              alt="Cover preview"
-              className="h-16 rounded object-cover"
-            />
-          )}
-        </div>
-        <details className="mt-3">
+        <details>
           <summary className="text-[11px] text-muted/70 font-sans cursor-pointer hover:text-accent transition-colors select-none">
             Image generation prompt template
           </summary>
@@ -291,9 +263,9 @@ export function ArticleEditor({ existingPost }: ArticleEditorProps) {
                 className="h-16 rounded object-cover"
                 style={{ aspectRatio: '16/9' }}
               />
-              {optimizedVideo && (
+              {pendingAnimation && (
                 <span className="text-[11px] text-muted font-sans">
-                  {(optimizedVideo.video.size / 1024 / 1024).toFixed(1)} MB
+                  {(pendingAnimation.video.size / 1024 / 1024).toFixed(1)} MB
                 </span>
               )}
               <button

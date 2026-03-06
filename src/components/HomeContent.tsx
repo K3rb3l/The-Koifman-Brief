@@ -11,8 +11,11 @@ import { AnimatedPortrait } from '@/components/AnimatedPortrait'
 import { PostCardSkeleton } from '@/components/PostCardSkeleton'
 import type { Post } from '@/types/post'
 
-function preloadImages(posts: Post[]): Promise<void> {
-  const urls = posts.slice(0, 3).map((p) => p.coverImageUrl).filter(Boolean) as string[]
+const POSTS_PER_PAGE = 3
+const PRELOAD_TIMEOUT_MS = 2000
+
+function preloadCoverImages(posts: Post[]): Promise<void> {
+  const urls = posts.map((p) => p.coverImageUrl).filter(Boolean) as string[]
   if (urls.length === 0) return Promise.resolve()
   return new Promise((resolve) => {
     let loaded = 0
@@ -23,8 +26,7 @@ function preloadImages(posts: Post[]): Promise<void> {
       img.onerror = done
       img.src = url
     })
-    // Don't wait more than 2s for images
-    setTimeout(resolve, 2000)
+    setTimeout(resolve, PRELOAD_TIMEOUT_MS)
   })
 }
 
@@ -32,21 +34,19 @@ export function HomeContent() {
   const [posts, setPosts] = useState<Post[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [didInit, setDidInit] = useState(false)
 
   useEffect(() => {
     const cached = getCachedPublishedPosts()
     if (cached) {
-      preloadImages(cached).then(() => {
+      preloadCoverImages(cached.slice(0, POSTS_PER_PAGE)).then(() => {
         setPosts(cached)
         setLoading(false)
       })
     }
-    setDidInit(true)
 
     getPublishedPosts()
       .then(async (data) => {
-        await preloadImages(data)
+        await preloadCoverImages(data.slice(0, POSTS_PER_PAGE))
         setPosts(data)
         setLoading(false)
       })
@@ -59,18 +59,27 @@ export function HomeContent() {
       })
   }, [])
 
-  const POSTS_PER_PAGE = 3
   const totalBriefs = posts.length
   const [page, setPage] = useState(1)
+  const [pageLoading, setPageLoading] = useState(false)
   const totalPages = Math.ceil(posts.length / POSTS_PER_PAGE)
   const paginatedPosts = posts.slice((page - 1) * POSTS_PER_PAGE, page * POSTS_PER_PAGE)
+
+  function goToPage(nextPage: number) {
+    setPageLoading(true)
+    setPage(nextPage)
+    requestAnimationFrame(() => window.scrollTo(0, 0))
+
+    const nextPosts = posts.slice((nextPage - 1) * POSTS_PER_PAGE, nextPage * POSTS_PER_PAGE)
+    preloadCoverImages(nextPosts).then(() => setPageLoading(false))
+  }
 
   return (
     <div>
       <section className="animate-fade-in-up mb-16 flex flex-col items-center text-center">
         <Link href="/about" className="mb-5 group">
           <AnimatedPortrait
-            className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover ring-2 ring-border group-hover:ring-accent/50 transition-all duration-300"
+            className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover portrait-ring group-hover:ring-accent/50 transition-all duration-300"
           />
         </Link>
         <p className="text-[11px] font-sans font-medium tracking-[0.3em] uppercase text-muted mb-3">
@@ -86,12 +95,12 @@ export function HomeContent() {
 
       {error ? (
         <div className="text-center text-red-500 font-sans py-12">{error}</div>
-      ) : loading ? (
+      ) : loading || pageLoading ? (
         <PostCardSkeleton />
       ) : posts.length > 0 ? (
         <>
           <CursorSpotlight>
-            <section className={`space-y-2 ${!didInit ? 'stagger-children' : ''}`}>
+            <section className="space-y-2">
               {paginatedPosts.map((post, i) => (
                 <PostCard
                   key={post.slug}
@@ -112,17 +121,17 @@ export function HomeContent() {
           {totalPages > 1 && (
             <nav className="flex items-center justify-center gap-2 mt-12">
               <button
-                onClick={() => { setPage((p) => p - 1); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
+                onClick={() => goToPage(page - 1)}
                 disabled={page === 1}
-                className="px-3 py-1.5 text-sm font-sans text-muted hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                className="px-3 py-1.5 text-sm font-sans text-muted hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
               >
                 Prev
               </button>
               {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
                 <button
                   key={p}
-                  onClick={() => { setPage(p); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
-                  className={`w-8 h-8 text-sm font-sans rounded transition-colors ${
+                  onClick={() => goToPage(p)}
+                  className={`w-8 h-8 text-sm font-sans rounded cursor-pointer transition-colors ${
                     p === page
                       ? 'bg-accent text-white'
                       : 'text-muted hover:text-foreground'
@@ -132,9 +141,9 @@ export function HomeContent() {
                 </button>
               ))}
               <button
-                onClick={() => { setPage((p) => p + 1); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
+                onClick={() => goToPage(page + 1)}
                 disabled={page === totalPages}
-                className="px-3 py-1.5 text-sm font-sans text-muted hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                className="px-3 py-1.5 text-sm font-sans text-muted hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
               >
                 Next
               </button>

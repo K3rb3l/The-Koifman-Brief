@@ -24,27 +24,27 @@ export function PencilSketchImage({
         <defs>
           {/* Light mode filter */}
           <filter id="pencil-sketch">
-            {/* Grayscale */}
+            {/* Desaturate slightly — warm editorial tone */}
             <feColorMatrix
               type="saturate"
-              values="0"
+              values="0.15"
               result="gray"
             />
-            {/* High contrast / ink threshold */}
+            {/* Gentle contrast boost */}
             <feComponentTransfer in="gray" result="contrast">
-              <feFuncR type="linear" slope="1.8" intercept="-0.3" />
-              <feFuncG type="linear" slope="1.8" intercept="-0.3" />
-              <feFuncB type="linear" slope="1.8" intercept="-0.3" />
+              <feFuncR type="linear" slope="1.2" intercept="-0.05" />
+              <feFuncG type="linear" slope="1.2" intercept="-0.05" />
+              <feFuncB type="linear" slope="1.2" intercept="-0.05" />
             </feComponentTransfer>
-            {/* Edge emphasis — pen strokes */}
+            {/* Subtle edge emphasis */}
             <feConvolveMatrix
               in="contrast"
               order="3"
-              kernelMatrix="0 -1 0 -1 5 -1 0 -1 0"
+              kernelMatrix="0 -0.5 0 -0.5 3 -0.5 0 -0.5 0"
               result="edges"
             />
             {/* Slight softness — hand-drawn feel */}
-            <feGaussianBlur in="edges" stdDeviation="0.4" />
+            <feGaussianBlur in="edges" stdDeviation="0.3" />
           </filter>
 
           {/* Dark mode filter — brighter output */}
@@ -80,8 +80,8 @@ export function PencilSketchImage({
         alt={alt}
         width={width}
         height={height}
-        className="dark:hidden rounded-md object-cover"
-        style={{ filter: 'url(#pencil-sketch)' }}
+        className="rounded-md object-cover dark:opacity-0"
+        style={{ filter: 'url(#pencil-sketch)', transition: 'opacity 0.3s ease-in-out' }}
         priority={priority}
       />
       {/* Dark mode image */}
@@ -90,8 +90,8 @@ export function PencilSketchImage({
         alt={alt}
         width={width}
         height={height}
-        className="hidden dark:block rounded-md object-cover"
-        style={{ filter: 'url(#pencil-sketch-dark)' }}
+        className="absolute inset-0 rounded-md object-cover opacity-0 dark:opacity-100"
+        style={{ filter: 'url(#pencil-sketch-dark)', transition: 'opacity 0.3s ease-in-out' }}
         priority={priority}
       />
     </div>

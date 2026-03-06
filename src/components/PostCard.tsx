@@ -20,7 +20,7 @@ export function PostCard({ slug, title, date, category, excerpt, coverImageUrl, 
     <article className="group">
       <Link
         href={`/posts/${slug}`}
-        className="block cursor-pointer -mx-5 px-5 py-5 rounded-sm transition-all duration-500 ease-out group-hover:bg-accent/[0.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+        className="block cursor-pointer -mx-5 px-5 py-5 rounded-sm transition-all duration-500 ease-out group-hover:bg-accent/[0.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background text-center"
       >
         {/* Soft gradient rule — fades at edges */}
         <div className="flex items-center gap-4 mb-4">
@@ -35,7 +35,7 @@ export function PostCard({ slug, title, date, category, excerpt, coverImageUrl, 
           )}
         </div>
 
-        <div className="flex items-center gap-3 mb-3">
+        <div className="flex items-center justify-center gap-3 mb-3">
           <span className="text-[11px] font-sans font-semibold uppercase tracking-[0.18em] text-accent/80 group-hover:text-accent transition-colors duration-500 ease-out">
             {slugToTitle(category)}
           </span>
@@ -48,7 +48,7 @@ export function PostCard({ slug, title, date, category, excerpt, coverImageUrl, 
         </div>
 
         {coverImageUrl && (
-          <div className="sm:hidden relative cover-vignette mb-3" style={{ aspectRatio: '16/9' }}>
+          <div className="relative cover-vignette mb-3 sm:w-[70%] sm:mx-auto" style={{ aspectRatio: '16/9' }}>
             <CoverMedia
               imageUrl={coverImageUrl}
               animationUrl={coverAnimationUrl}
@@ -58,36 +58,20 @@ export function PostCard({ slug, title, date, category, excerpt, coverImageUrl, 
           </div>
         )}
 
-        <div className={coverImageUrl ? 'sm:flex sm:gap-5' : ''}>
-          <div className="flex-1 min-w-0">
-            <h2 className={`font-serif font-bold text-foreground leading-tight tracking-tight group-hover:text-accent transition-colors duration-500 ease-out ${
-              isLatest ? 'text-2xl sm:text-[1.85rem]' : 'text-xl sm:text-2xl'
-            }`}>
-              {title}
-            </h2>
+        <div className="text-center">
+          <h2 className={`font-serif font-bold text-foreground leading-tight tracking-tight group-hover:text-accent transition-colors duration-500 ease-out ${
+            isLatest ? 'text-2xl sm:text-[1.85rem]' : 'text-xl sm:text-2xl'
+          }`}>
+            {title}
+          </h2>
 
-            <p className="mt-3 text-muted/70 font-sans text-[15px] leading-relaxed line-clamp-3 group-hover:text-foreground/60 transition-colors duration-500 ease-out">
-              {excerpt}
-            </p>
-          </div>
-
-          {coverImageUrl && (
-            <div
-              className="hidden sm:block flex-shrink-0 relative self-start mt-1 cover-vignette"
-              style={{ width: '10rem', aspectRatio: '16/9' }}
-            >
-              <CoverMedia
-                imageUrl={coverImageUrl}
-                animationUrl={coverAnimationUrl}
-                alt={title}
-                className="absolute inset-0 w-full h-full object-cover rounded dark:brightness-[0.85] dark:contrast-[1.1]"
-              />
-            </div>
-          )}
+          <p className="mt-3 text-muted/70 font-sans text-[15px] leading-relaxed line-clamp-3 group-hover:text-foreground/60 transition-colors duration-500 ease-out">
+            {excerpt}
+          </p>
         </div>
 
         <span
-          className="inline-flex items-center gap-1 mt-4 text-[13px] font-sans font-medium text-accent opacity-0 group-hover:opacity-100"
+          className="mx-auto inline-flex items-center gap-1 mt-4 text-[13px] font-sans font-medium text-accent opacity-0 group-hover:opacity-100"
           style={{ transition: 'opacity 0.5s cubic-bezier(0.16,1,0.3,1)' }}
         >
           Read brief

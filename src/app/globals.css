@@ -1,4 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Lato:wght@300;400;700&display=swap');
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
@@ -15,8 +14,8 @@
   --color-link-hover: var(--lh);
   --color-gold: var(--gd);
 
-  --font-serif: 'EB Garamond', Georgia, serif;
-  --font-sans: 'Lato', system-ui, sans-serif;
+  --font-serif: 'Playfair Display', Georgia, serif;
+  --font-sans: 'Libre Franklin', system-ui, sans-serif;
 }
 
 html {
@@ -57,19 +56,14 @@ html.dark {
   --gd: #D4A843;
 }
 
-/* Base color transition — all elements smoothly shift colors on hover/state change */
-*,
-*::before,
-*::after {
-  transition-property: color, background-color, border-color, fill, stroke;
-  transition-duration: 0.35s;
-  transition-timing-function: ease;
-}
+/* Theme transition — only during theme switch, not on every element */
 
 html.theme-transition *,
 html.theme-transition *::before,
 html.theme-transition *::after {
+  transition-property: color, background-color, border-color, fill, stroke;
   transition-duration: 0.5s !important;
+  transition-timing-function: ease;
 }
 
 body {
@@ -78,15 +72,17 @@ body {
   position: relative;
 }
 
-/* Subtle paper noise texture */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  opacity: 0.03;
-  pointer-events: none;
-  z-index: 50;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+/* Subtle paper noise texture — desktop only */
+@media (min-width: 768px) {
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    opacity: 0.03;
+    pointer-events: none;
+    z-index: 50;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  }
 }
 
 @media (min-width: 768px) {
@@ -98,7 +94,7 @@ body::before {
 /* Drop cap for first paragraph in articles */
 .drop-cap > p:first-of-type::first-letter {
   float: left;
-  font-family: 'EB Garamond', Georgia, serif;
+  font-family: 'Playfair Display', Georgia, serif;
   font-size: 4em;
   line-height: 0.8;
   padding-right: 0.1em;
@@ -255,7 +251,7 @@ body::before {
 /* Pull quotes in articles */
 .prose blockquote {
   border-left: 2px solid var(--ac) !important;
-  font-family: 'EB Garamond', Georgia, serif;
+  font-family: 'Playfair Display', Georgia, serif;
   font-style: italic;
   font-size: 1.25em;
   color: var(--mt);
@@ -488,8 +484,137 @@ body::before {
   }
 }
 
+/* Brandmark — each edge breathes independently.
+   All shapes stay fully drawn for the first ~30% of their cycle (2-3s rest),
+   then one shape at a time partially undraws and redraws smoothly. */
+
+/* Edge A (top-right, 9s): ~3s rest, undraw, hold, redraw */
+@keyframes bmEdgeA {
+  0%  { stroke-dashoffset: 0; }
+  33% { stroke-dashoffset: 0; }
+  45% { stroke-dashoffset: 14; }
+  58% { stroke-dashoffset: 14; }
+  70% { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: 0; }
+}
+
+/* Edge B (bottom-right, 11s): ~3s rest, deeper undraw, redraw */
+@keyframes bmEdgeB {
+  0%  { stroke-dashoffset: 0; }
+  30% { stroke-dashoffset: 0; }
+  42% { stroke-dashoffset: 22; }
+  55% { stroke-dashoffset: 22; }
+  67% { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: 0; }
+}
+
+/* Edge C (bottom-left, 13s): ~3s rest, deep undraw, long hold, gradual redraw */
+@keyframes bmEdgeC {
+  0%  { stroke-dashoffset: 0; }
+  25% { stroke-dashoffset: 0; }
+  38% { stroke-dashoffset: 26; }
+  55% { stroke-dashoffset: 26; }
+  68% { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: 0; }
+}
+
+/* Edge D (top-left, 10s): ~3s rest, small undraw, redraw */
+@keyframes bmEdgeD {
+  0%  { stroke-dashoffset: 0; }
+  32% { stroke-dashoffset: 0; }
+  44% { stroke-dashoffset: 12; }
+  56% { stroke-dashoffset: 12; }
+  68% { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: 0; }
+}
+
+/* Overdraw — foreground trace draws on then draws off in same direction */
+@keyframes bmOverdraw {
+  0%  { stroke-dashoffset: 128; }
+  25% { stroke-dashoffset: 128; }
+  45% { stroke-dashoffset: 0; }
+  55% { stroke-dashoffset: 0; }
+  75% { stroke-dashoffset: -128; }
+  100% { stroke-dashoffset: -128; }
+}
+
+/* Vertical cross (12s): ~3s rest, retracts, redraws */
+@keyframes bmCrossV {
+  0%  { stroke-dashoffset: 0; }
+  28% { stroke-dashoffset: 0; }
+  40% { stroke-dashoffset: 12; }
+  55% { stroke-dashoffset: 12; }
+  67% { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: 0; }
+}
+
+/* Horizontal cross (14s): ~3s rest, retracts, redraws */
+@keyframes bmCrossH {
+  0%  { stroke-dashoffset: 0; }
+  25% { stroke-dashoffset: 0; }
+  37% { stroke-dashoffset: 10; }
+  52% { stroke-dashoffset: 10; }
+  64% { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: 0; }
+}
+
+/* Center dot (9s): ~3s rest, fade out, fade back in */
+@keyframes bmDot {
+  0%  { opacity: 1; transform: scale(1); }
+  35% { opacity: 1; transform: scale(1); }
+  48% { opacity: 0.3; transform: scale(0.6); }
+  60% { opacity: 0.3; transform: scale(0.6); }
+  73% { opacity: 1; transform: scale(1); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+/* Portrait ring pulse — cycles between accent tones */
+@keyframes ringPulse {
+  0%, 100% { box-shadow: 0 0 0 2px var(--ac); }
+  33% { box-shadow: 0 0 0 2px var(--bd); }
+  66% { box-shadow: 0 0 0 2px color-mix(in srgb, var(--ac) 60%, #8B5E3C); }
+}
+
+.portrait-ring {
+  animation: ringPulse 6s ease-in-out infinite;
+}
+
+/* Cover image vignette — fades edges into background */
+/* Cover image vignette — inset shadow blends edges into background */
+.cover-vignette {
+  border-radius: 6px;
+  overflow: hidden;
+  position: relative;
+}
+
+.cover-vignette::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 8px;
+  box-shadow:
+    inset 0 0 14px 6px var(--bg),
+    0 0 0 2px var(--bg);
+  pointer-events: none;
+}
+
+.cover-vignette-lg {
+  position: relative;
+}
+
+.cover-vignette-lg::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 10px;
+  box-shadow:
+    inset 0 0 24px 10px var(--bg),
+    0 0 0 2px var(--bg);
+  pointer-events: none;
+}
+
 /* Prevent horizontal overflow / shrinking on mobile */
-html, body {
+body {
   overflow-x: hidden;
 }
 

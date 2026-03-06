@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useCallback, type ReactNode } from 'react'
+import { useEffect, useRef, useCallback, useState, type ReactNode } from 'react'
 
 type CursorSpotlightProps = {
   children: ReactNode
@@ -13,6 +13,7 @@ export function CursorSpotlight({ children, className = '' }: CursorSpotlightPro
 
 export function GlobalCursorSpotlight() {
   const ref = useRef<HTMLDivElement>(null)
+  const [isMobile, setIsMobile] = useState(false)
 
   const handleMouseMove = useCallback((e: globalThis.MouseEvent) => {
     if (!ref.current) return
@@ -27,6 +28,10 @@ export function GlobalCursorSpotlight() {
   }, [])
 
   useEffect(() => {
+    if ('ontouchstart' in window || window.innerWidth < 768) {
+      setIsMobile(true)
+      return
+    }
     window.addEventListener('mousemove', handleMouseMove)
     document.documentElement.addEventListener('mouseleave', handleMouseLeave)
     return () => {
@@ -34,6 +39,8 @@ export function GlobalCursorSpotlight() {
       document.documentElement.removeEventListener('mouseleave', handleMouseLeave)
     }
   }, [handleMouseMove, handleMouseLeave])
+
+  if (isMobile) return null
 
   return (
     <div

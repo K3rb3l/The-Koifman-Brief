@@ -1,8 +1,8 @@
 'use client'
 
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
-import { onAuthStateChanged, type User } from 'firebase/auth'
-import { auth } from '@/lib/firebase'
+import { getAuth, onAuthStateChanged, type User } from 'firebase/auth'
+import { app } from '@/lib/firebase'
 import { isAdmin } from '@/lib/admins'
 
 type AuthState = {
@@ -17,6 +17,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AuthState>({ user: null, isAdmin: false, loading: true })
 
   useEffect(() => {
+    const auth = getAuth(app)
     return onAuthStateChanged(auth, async (user) => {
       if (user) {
         const adminStatus = await isAdmin(user.uid)

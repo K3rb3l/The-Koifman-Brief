@@ -1,38 +1,43 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useVideoFadeLoop, FADE_MS } from '@/hooks/useVideoFadeLoop'
 
 type CoverMediaProps = {
   imageUrl: string
   animationUrl?: string
   alt: string
   className?: string
+  onLoad?: () => void
 }
 
-export function CoverMedia({ imageUrl, animationUrl, alt, className = '' }: CoverMediaProps) {
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
+function prefersReducedMotion(): boolean {
+  return typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+}
 
-  useEffect(() => {
-    const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
-    setPrefersReducedMotion(mq.matches)
-    const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches)
-    mq.addEventListener('change', handler)
-    return () => mq.removeEventListener('change', handler)
-  }, [])
+export function CoverMedia({ imageUrl, animationUrl, alt, className = '', onLoad }: CoverMediaProps) {
+  const { videoRef, faded } = useVideoFadeLoop()
 
-  if (animationUrl && !prefersReducedMotion) {
+  if (animationUrl && !prefersReducedMotion()) {
     return (
-      <video
-        src={animationUrl}
-        poster={imageUrl}
-        autoPlay
-        muted
-        loop
-        playsInline
-        className={className}
-      />
+      <>
+        <img src={imageUrl} alt={alt} className={className} />
+        <video
+          ref={videoRef}
+          src={animationUrl}
+          poster={imageUrl}
+          autoPlay
+          muted
+          playsInline
+          onLoadedData={onLoad}
+          className={className}
+          style={{
+            opacity: faded ? 0 : 1,
+            transition: `opacity ${FADE_MS}ms ease-in-out`,
+          }}
+        />
+      </>
     )
   }
 
-  return <img src={imageUrl} alt={alt} className={className} />
+  return <img src={imageUrl} alt={alt} className={className} onLoad={onLoad} />
 }

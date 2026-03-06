@@ -1,8 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { signInWithEmailAndPassword } from 'firebase/auth'
-import { auth } from '@/lib/firebase'
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth'
+import { app } from '@/lib/firebase'
 
 export function LoginForm() {
   const [email, setEmail] = useState('')
@@ -15,7 +15,7 @@ export function LoginForm() {
     setError('')
     setLoading(true)
     try {
-      await signInWithEmailAndPassword(auth, email, password)
+      await signInWithEmailAndPassword(getAuth(app), email, password)
     } catch {
       setError('Invalid email or password.')
     } finally {

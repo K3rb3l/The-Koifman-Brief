@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
-import { getPost, getPublishedPosts } from '@/lib/posts'
+import { getPost, getPublishedPosts, getCachedPublishedPosts } from '@/lib/posts'
 import { formatDate, estimateReadingTime, slugToTitle } from '@/lib/utils'
 import { AuthorCard } from '@/components/AuthorCard'
 import { ShareLinks } from '@/components/ShareLinks'
@@ -24,14 +24,30 @@ export function PostContent() {
   const [allPosts, setAllPosts] = useState<Post[]>([])
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
+  const [coverLoaded, setCoverLoaded] = useState(false)
 
   useEffect(() => {
+    window.scrollTo(0, 0)
+
     if (!slug || slug === 'posts') {
       setNotFound(true)
       setLoading(false)
       return
     }
 
+    // Show cached data immediately if available
+    const cached = getCachedPublishedPosts()
+    if (cached) {
+      const cachedPost = cached.find((p) => p.slug === slug)
+      if (cachedPost && cachedPost.published) {
+        setPost(cachedPost)
+        setAllPosts(cached)
+        setCoverLoaded(false)
+        setLoading(false)
+      }
+    }
+
+    // Fetch fresh data in background
     Promise.all([getPost(slug), getPublishedPosts()]).then(([postData, postsData]) => {
       if (!postData || !postData.published) {
         setNotFound(true)
@@ -122,7 +138,7 @@ export function PostContent() {
             {post.title}
           </h1>
           <div className="animate-fade-in-up-delay-2 flex items-center justify-center gap-3 mt-5 text-[13px] text-muted font-sans">
-            <span>By Shahar Koifman</span>
+            <a href="/about" className="hover:text-accent transition-colors duration-200">By Shahar Koifman</a>
             <span>-</span>
             <time>{formatDate(post.date)}</time>
             <span>-</span>
@@ -131,12 +147,16 @@ export function PostContent() {
         </header>
 
         {post.coverImageUrl && (
-          <div className="mb-10 -mx-4 sm:mx-0 relative cover-vignette cover-vignette-lg">
+          <div className="mb-10 -mx-4 sm:mx-0 relative cover-vignette cover-vignette-lg" style={{ aspectRatio: '16/9' }}>
+            {!coverLoaded && (
+              <div className="absolute inset-0 skeleton-shimmer rounded-lg" />
+            )}
             <CoverMedia
               imageUrl={post.coverImageUrl}
               animationUrl={post.coverAnimationUrl}
               alt={post.title}
-              className="w-full rounded-lg dark:brightness-[0.85] dark:contrast-[1.1]"
+              className={`absolute inset-0 w-full h-full object-cover rounded-lg dark:brightness-[0.85] dark:contrast-[1.1] transition-opacity duration-500 ${coverLoaded ? 'opacity-100' : 'opacity-0'}`}
+              onLoad={() => setCoverLoaded(true)}
             />
           </div>
         )}

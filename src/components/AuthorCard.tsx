@@ -1,17 +1,11 @@
-import Image from 'next/image'
+import { AnimatedPortrait } from './AnimatedPortrait'
 
 export function AuthorCard() {
   return (
     <div className="flex items-center gap-4 py-6 border-t border-border mt-12">
-      <Image
-        src="https://storage.googleapis.com/the-koifman-brief-images/images/shahar-koifman.jpg"
-        alt="Shahar Koifman"
-        width={56}
-        height={56}
-        className="w-14 h-14 rounded-full object-cover shrink-0"
-      />
+      <a href="/about"><AnimatedPortrait className="w-14 h-14 rounded-full shrink-0" /></a>
       <div>
-        <p className="font-serif font-semibold text-foreground">Shahar Koifman</p>
+        <a href="/about" className="font-serif font-semibold text-foreground hover:text-accent transition-colors duration-200">Shahar Koifman</a>
         <p className="text-sm text-muted font-sans">
           Intelligence background. FinTech, CRE, and geopolitics analyst.
         </p>

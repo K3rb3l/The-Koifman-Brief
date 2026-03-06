@@ -41,7 +41,7 @@ export function PostNavigation({ previous, next }: PostNavigationProps) {
         {next && (
           <Link
             href={`/posts/${next.slug}`}
-            className="group cursor-pointer block text-right"
+            className="group cursor-pointer block"
           >
             <div className="w-full h-0 pb-[56.25%] relative rounded overflow-hidden cover-vignette mb-2">
               {next.coverImageUrl ? (
@@ -50,7 +50,7 @@ export function PostNavigation({ previous, next }: PostNavigationProps) {
                 <div className="absolute inset-0 bg-border/30" />
               )}
             </div>
-            <p className="font-serif text-[15px] leading-tight text-foreground group-hover:text-accent transition-colors">
+            <p className="font-serif text-[15px] leading-tight text-left text-foreground group-hover:text-accent transition-colors">
               {next.title}
             </p>
             <div className="flex items-center justify-end gap-1.5 mt-1.5">
