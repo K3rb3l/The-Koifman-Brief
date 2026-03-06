@@ -3,11 +3,7 @@
 import { useEffect, useState } from 'react'
 
 function clearIntroStyles() {
-  document.documentElement.style.background = ''
   document.body.style.overflow = ''
-  // Hide the preload overlay (created outside React's tree via inline script)
-  const el = document.getElementById('tkb-preload')
-  if (el) el.style.display = 'none'
 }
 
 function shouldAnimate(): boolean {
@@ -39,9 +35,6 @@ export function LoadingAnimation() {
       clearIntroStyles()
       return
     }
-    // Hide CSS-only overlay now that React overlay takes over
-    const preload = document.getElementById('tkb-preload')
-    if (preload) preload.style.display = 'none'
     setPhase('animate')
 
     const exitTimer = setTimeout(() => {

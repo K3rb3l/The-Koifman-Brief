@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useCallback, type ReactNode, type MouseEvent } from 'react'
+import { useEffect, useRef, useCallback, type ReactNode } from 'react'
 
 type CursorSpotlightProps = {
   children: ReactNode
@@ -8,15 +8,16 @@ type CursorSpotlightProps = {
 }
 
 export function CursorSpotlight({ children, className = '' }: CursorSpotlightProps) {
+  return <div className={className}>{children}</div>
+}
+
+export function GlobalCursorSpotlight() {
   const ref = useRef<HTMLDivElement>(null)
 
-  const handleMouseMove = useCallback((e: MouseEvent<HTMLDivElement>) => {
+  const handleMouseMove = useCallback((e: globalThis.MouseEvent) => {
     if (!ref.current) return
-    const rect = ref.current.getBoundingClientRect()
-    const x = e.clientX - rect.left
-    const y = e.clientY - rect.top
-    ref.current.style.setProperty('--spot-x', `${x}px`)
-    ref.current.style.setProperty('--spot-y', `${y}px`)
+    ref.current.style.setProperty('--spot-x', `${e.clientX}px`)
+    ref.current.style.setProperty('--spot-y', `${e.clientY}px`)
     ref.current.style.setProperty('--spot-opacity', '1')
   }, [])
 
@@ -25,23 +26,23 @@ export function CursorSpotlight({ children, className = '' }: CursorSpotlightPro
     ref.current.style.setProperty('--spot-opacity', '0')
   }, [])
 
+  useEffect(() => {
+    window.addEventListener('mousemove', handleMouseMove)
+    document.documentElement.addEventListener('mouseleave', handleMouseLeave)
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove)
+      document.documentElement.removeEventListener('mouseleave', handleMouseLeave)
+    }
+  }, [handleMouseMove, handleMouseLeave])
+
   return (
     <div
       ref={ref}
-      className={`relative ${className}`}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      style={{ ['--spot-opacity' as string]: '0' }}
-    >
-      {/* Spotlight gradient — no overflow clip, bleeds freely past edges */}
-      <div
-        className="pointer-events-none absolute -inset-32 z-10 transition-opacity duration-500"
-        style={{
-          opacity: 'var(--spot-opacity, 0)',
-          background: 'radial-gradient(500px circle at calc(var(--spot-x, 0) + 8rem) calc(var(--spot-y, 0) + 8rem), rgba(184, 134, 11, 0.07), transparent 65%)',
-        }}
-      />
-      {children}
-    </div>
+      className="pointer-events-none fixed inset-0 z-30 transition-opacity duration-700"
+      style={{
+        opacity: 'var(--spot-opacity, 0)',
+        background: 'radial-gradient(600px circle at var(--spot-x, -1000px) var(--spot-y, -1000px), rgba(184, 134, 11, 0.06), transparent 65%)',
+      }}
+    />
   )
 }

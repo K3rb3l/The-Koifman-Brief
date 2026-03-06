@@ -1,8 +1,20 @@
+'use client'
+
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { ThemeToggle } from './ThemeToggle'
 import { BrandMark } from './BrandMark'
 
 export function Header() {
+  const pathname = usePathname()
+
+  const handleHomeClick = (e: React.MouseEvent) => {
+    if (pathname === '/') {
+      e.preventDefault()
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+  }
+
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur-sm">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 py-3 sm:py-6">
@@ -10,6 +22,7 @@ export function Header() {
         <div className="flex items-center justify-between gap-2 sm:gap-4">
           <Link
             href="/"
+            onClick={handleHomeClick}
             className="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-sm min-w-0"
           >
             <BrandMark />
@@ -21,17 +34,12 @@ export function Header() {
             <nav className="flex items-center gap-3 sm:gap-6 text-xs sm:text-sm font-sans">
               <Link
                 href="/"
+                onClick={handleHomeClick}
                 className="link-underline text-muted hover:text-foreground transition-colors duration-200 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded-sm px-1 py-1"
               >
                 Home
               </Link>
-              <Link
-                href="/articles"
-                className="link-underline text-muted hover:text-foreground transition-colors duration-200 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded-sm px-1 py-1"
-              >
-                Articles
-              </Link>
-              <Link
+<Link
                 href="/about"
                 className="link-underline text-muted hover:text-foreground transition-colors duration-200 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded-sm px-1 py-1"
               >

@@ -1,20 +1,24 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { getPublishedPosts } from '@/lib/posts'
+import { getPublishedPosts, getCachedPublishedPosts } from '@/lib/posts'
 import { PostCard } from '@/components/PostCard'
 import { ScrollReveal } from '@/components/ScrollReveal'
+import { PostCardSkeleton } from '@/components/PostCardSkeleton'
 import type { Post } from '@/types/post'
 
 export function ArticlesContent() {
-  const [posts, setPosts] = useState<Post[]>([])
-  const [loading, setLoading] = useState(true)
+  const cached = typeof window !== 'undefined' ? getCachedPublishedPosts() : null
+  const [posts, setPosts] = useState<Post[]>(cached ?? [])
+  const [loading, setLoading] = useState(!cached)
 
   useEffect(() => {
-    getPublishedPosts().then((data) => {
-      setPosts(data)
-      setLoading(false)
-    })
+    getPublishedPosts()
+      .then((data) => {
+        setPosts(data)
+        setLoading(false)
+      })
+      .catch(() => setLoading(false))
   }, [])
 
   const totalBriefs = posts.length
@@ -36,7 +40,7 @@ export function ArticlesContent() {
       </header>
 
       {loading ? (
-        <div className="text-center text-muted font-sans py-12">Loading briefs...</div>
+        <PostCardSkeleton />
       ) : posts.length > 0 ? (
         <div className="space-y-10">
           {posts.map((post, i) => (

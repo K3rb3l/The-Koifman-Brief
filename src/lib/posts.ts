@@ -6,10 +6,44 @@ import type { Post } from '@/types/post'
 
 const postsRef = collection(db, 'posts')
 
+const CACHE_KEY = 'tkb_posts_cache'
+const CACHE_TTL = 5 * 60 * 1000 // 5 minutes
+
+type CachedPosts = {
+  posts: Post[]
+  timestamp: number
+}
+
+function getCachedPosts(): Post[] | null {
+  try {
+    const raw = localStorage.getItem(CACHE_KEY)
+    if (!raw) return null
+    const cached: CachedPosts = JSON.parse(raw)
+    if (Date.now() - cached.timestamp > CACHE_TTL) return null
+    return cached.posts
+  } catch {
+    return null
+  }
+}
+
+function setCachedPosts(posts: Post[]): void {
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify({ posts, timestamp: Date.now() }))
+  } catch {
+    // Storage full or unavailable
+  }
+}
+
 export async function getPublishedPosts(): Promise<Post[]> {
   const q = query(postsRef, where('published', '==', true), orderBy('date', 'desc'))
   const snapshot = await getDocs(q)
-  return snapshot.docs.map((d) => ({ slug: d.id, ...d.data() }) as Post)
+  const posts = snapshot.docs.map((d) => ({ slug: d.id, ...d.data() }) as Post)
+  setCachedPosts(posts)
+  return posts
+}
+
+export function getCachedPublishedPosts(): Post[] | null {
+  return getCachedPosts()
 }
 
 export async function getAllPosts(): Promise<Post[]> {

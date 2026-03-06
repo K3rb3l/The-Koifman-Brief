@@ -17,10 +17,10 @@ export function PostCard({ slug, title, date, category, excerpt, briefNumber, is
     <article className="group">
       <Link
         href={`/posts/${slug}`}
-        className="block cursor-pointer -mx-5 px-5 py-8 rounded-sm transition-all duration-500 ease-out group-hover:bg-accent/[0.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+        className="block cursor-pointer -mx-5 px-5 py-5 rounded-sm transition-all duration-500 ease-out group-hover:bg-accent/[0.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
       >
         {/* Soft gradient rule — fades at edges */}
-        <div className="flex items-center gap-4 mb-6">
+        <div className="flex items-center gap-4 mb-4">
           <span
             className="h-px flex-1 transition-opacity duration-500 ease-out opacity-40 group-hover:opacity-70"
             style={{ background: 'linear-gradient(90deg, transparent, var(--bd) 30%, var(--bd) 70%, transparent)' }}
@@ -54,9 +54,16 @@ export function PostCard({ slug, title, date, category, excerpt, briefNumber, is
           {excerpt}
         </p>
 
-        <span className="inline-flex items-center gap-1 mt-4 text-[13px] font-sans font-medium text-accent opacity-0 translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 ease-out">
+        <span
+          className="inline-flex items-center gap-1 mt-4 text-[13px] font-sans font-medium text-accent opacity-0 group-hover:opacity-100"
+          style={{ transition: 'opacity 0.5s cubic-bezier(0.16,1,0.3,1)' }}
+        >
           Read brief
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className="translate-x-0 group-hover:translate-x-1.5 transition-transform duration-500 ease-out">
+          <svg
+            width="14" height="14" viewBox="0 0 16 16" fill="none"
+            className="translate-x-0 group-hover:translate-x-1.5"
+            style={{ transition: 'transform 0.5s cubic-bezier(0.16,1,0.3,1) 0.05s' }}
+          >
             <path d="M6 3l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </span>

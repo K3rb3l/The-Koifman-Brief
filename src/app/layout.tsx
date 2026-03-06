@@ -6,6 +6,7 @@ import { LoadingAnimation } from '@/components/LoadingAnimation'
 import { BackgroundAnimation } from '@/components/BackgroundAnimation'
 import { GoogleAnalytics } from '@/components/GoogleAnalytics'
 import { AuthProvider } from '@/contexts/AuthContext'
+import { GlobalCursorSpotlight } from '@/components/CursorSpotlight'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -42,6 +43,7 @@ export default function RootLayout({
           <AuthProvider>
             <LoadingAnimation />
             <BackgroundAnimation />
+            <GlobalCursorSpotlight />
             <Header />
             <main className="flex-1 max-w-3xl mx-auto w-full px-6 py-12">
               {children}

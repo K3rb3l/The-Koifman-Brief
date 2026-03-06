@@ -19,6 +19,20 @@
   --font-sans: 'Lato', system-ui, sans-serif;
 }
 
+html {
+  background: #F5F0E8;
+}
+
+@media (prefers-color-scheme: dark) {
+  html:not(.light) {
+    background: #0F0F0F;
+  }
+}
+
+html.dark {
+  background: #0F0F0F;
+}
+
 :root {
   --bg: #F5F0E8;
   --srf: #FEFCF8;
@@ -144,17 +158,17 @@ body::before {
 }
 
 .animate-fade-in-up {
-  animation: fadeInUp 0.6s ease-out forwards;
+  animation: fadeInUp 0.4s ease-out forwards;
   opacity: 0;
 }
 
 .animate-fade-in-up-delay-1 {
-  animation: fadeInUp 0.6s ease-out 0.15s forwards;
+  animation: fadeInUp 0.4s ease-out 0.1s forwards;
   opacity: 0;
 }
 
 .animate-fade-in-up-delay-2 {
-  animation: fadeInUp 0.6s ease-out 0.3s forwards;
+  animation: fadeInUp 0.4s ease-out 0.2s forwards;
   opacity: 0;
 }
 
@@ -435,6 +449,43 @@ body::before {
 
 ::view-transition-new(root) {
   animation: fadeIn 0.3s ease-out forwards;
+}
+
+/* Skeleton loading shimmer */
+@keyframes skeletonShimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes skeletonFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--bd) 0%,
+    var(--ac) 25%,
+    var(--bd) 50%,
+    var(--ac) 75%,
+    var(--bd) 100%
+  );
+  background-size: 200% 100%;
+  animation: skeletonShimmer 2.5s ease-in-out infinite;
+  opacity: 0.3;
+}
+
+.dark .skeleton-shimmer {
+  opacity: 0.15;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-shimmer {
+    animation: none;
+    background: var(--bd);
+    opacity: 0.3;
+  }
 }
 
 /* Prevent horizontal overflow / shrinking on mobile */

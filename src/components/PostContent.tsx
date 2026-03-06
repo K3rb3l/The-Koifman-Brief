@@ -43,7 +43,29 @@ export function PostContent() {
   }, [slug])
 
   if (loading) {
-    return <div className="text-center text-muted font-sans py-24">Loading...</div>
+    return (
+      <div className="space-y-6 py-8">
+        {/* Title skeleton */}
+        <div className="text-center space-y-4">
+          <div className="h-3 w-20 mx-auto skeleton-shimmer rounded" style={{ opacity: 0, animation: 'skeletonFadeIn 0.4s ease-out forwards' }} />
+          <div className="space-y-2">
+            <div className="h-8 w-4/5 mx-auto skeleton-shimmer rounded" style={{ opacity: 0, animation: 'skeletonFadeIn 0.4s ease-out 0.1s forwards' }} />
+            <div className="h-8 w-3/5 mx-auto skeleton-shimmer rounded" style={{ opacity: 0, animation: 'skeletonFadeIn 0.4s ease-out 0.15s forwards' }} />
+          </div>
+          <div className="h-3 w-48 mx-auto skeleton-shimmer rounded" style={{ opacity: 0, animation: 'skeletonFadeIn 0.4s ease-out 0.2s forwards' }} />
+        </div>
+        {/* Cover image skeleton */}
+        <div className="h-64 w-full skeleton-shimmer rounded-lg" style={{ opacity: 0, animation: 'skeletonFadeIn 0.4s ease-out 0.25s forwards' }} />
+        {/* Body skeleton */}
+        <div className="space-y-3 pt-4" style={{ opacity: 0, animation: 'skeletonFadeIn 0.4s ease-out 0.3s forwards' }}>
+          <div className="h-4 w-full skeleton-shimmer rounded" />
+          <div className="h-4 w-11/12 skeleton-shimmer rounded" />
+          <div className="h-4 w-4/5 skeleton-shimmer rounded" />
+          <div className="h-4 w-full skeleton-shimmer rounded" />
+          <div className="h-4 w-3/4 skeleton-shimmer rounded" />
+        </div>
+      </div>
+    )
   }
 
   if (notFound || !post) {

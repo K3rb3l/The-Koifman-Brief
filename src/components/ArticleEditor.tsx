@@ -106,8 +106,9 @@ export function ArticleEditor({ existingPost }: ArticleEditorProps) {
       })
 
       router.push('/admin')
-    } catch {
-      setError('Failed to save article. Check your permissions.')
+    } catch (err) {
+      console.error('Save error:', err)
+      setError(err instanceof Error ? err.message : 'Failed to save article. Check your permissions.')
     } finally {
       setSaving(false)
     }
