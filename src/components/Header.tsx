@@ -26,7 +26,7 @@ export function Header() {
             className="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-sm min-w-0"
           >
             <BrandMark />
-            <h1 className="font-serif text-xs sm:text-base md:text-lg font-bold tracking-tight text-foreground uppercase whitespace-nowrap hidden sm:block" style={{ letterSpacing: '0.08em' }}>
+            <h1 className="text-xs sm:text-base md:text-lg font-bold tracking-tight text-foreground uppercase whitespace-nowrap hidden sm:block" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", letterSpacing: '0.12em' }}>
               The Koifman Brief
             </h1>
           </Link>

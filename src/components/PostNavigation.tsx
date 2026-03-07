@@ -46,12 +46,16 @@ function NavLink({ slug, children, coverSelector }: { slug: string; children: Re
       oldCover.removeAttribute('data-article-cover')
     }
 
-    const transition = document.startViewTransition(async () => {
+    try {
+      const transition = document.startViewTransition(async () => {
+        router.push(`/posts/${slug}`)
+        await waitForElement('[data-article-cover]')
+        window.scrollTo({ top: 0, behavior: 'instant' })
+      })
+      transition.finished.catch(() => {})
+    } catch {
       router.push(`/posts/${slug}`)
-      await waitForElement('[data-article-cover]')
-      window.scrollTo({ top: 0, behavior: 'instant' })
-    })
-    transition.finished.catch(() => {})
+    }
   }
 
   return (
