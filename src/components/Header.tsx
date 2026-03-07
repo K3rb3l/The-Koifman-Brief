@@ -16,7 +16,7 @@ export function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur-sm">
+    <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur-sm" style={{ viewTransitionName: 'site-header' }}>
       <div className="max-w-3xl mx-auto px-4 sm:px-6 py-3 sm:py-6">
         {/* Mobile: stack logo + nav; Desktop: single row */}
         <div className="flex items-center justify-between gap-2 sm:gap-4">

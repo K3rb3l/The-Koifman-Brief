@@ -1,4 +1,6 @@
-import Link from 'next/link'
+'use client'
+
+import { useRouter } from 'next/navigation'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { CoverMedia } from './CoverMedia'
 
@@ -9,6 +11,56 @@ type PostNavigationProps = {
   next: NavItem | null
 }
 
+function waitForElement(selector: string): Promise<void> {
+  if (document.querySelector(selector)) return Promise.resolve()
+  return new Promise((resolve) => {
+    const observer = new MutationObserver(() => {
+      if (document.querySelector(selector)) {
+        observer.disconnect()
+        resolve()
+      }
+    })
+    observer.observe(document.body, { childList: true, subtree: true })
+    setTimeout(() => { observer.disconnect(); resolve() }, 2000)
+  })
+}
+
+function NavLink({ slug, children, coverSelector }: { slug: string; children: React.ReactNode; coverSelector: string }) {
+  const router = useRouter()
+
+  function handleClick(e: React.MouseEvent<HTMLAnchorElement>) {
+    e.preventDefault()
+
+    if (!document.startViewTransition) {
+      router.push(`/posts/${slug}`)
+      return
+    }
+
+    const coverEl = e.currentTarget.querySelector(coverSelector) as HTMLElement | null
+    if (coverEl) coverEl.style.viewTransitionName = 'cover-hero'
+
+    // Clear old article's cover-hero name and marker so we detect the NEW page
+    const oldCover = document.querySelector('[data-article-cover]') as HTMLElement | null
+    if (oldCover) {
+      oldCover.style.viewTransitionName = ''
+      oldCover.removeAttribute('data-article-cover')
+    }
+
+    const transition = document.startViewTransition(async () => {
+      router.push(`/posts/${slug}`)
+      await waitForElement('[data-article-cover]')
+      window.scrollTo({ top: 0, behavior: 'instant' })
+    })
+    transition.finished.catch(() => {})
+  }
+
+  return (
+    <a href={`/posts/${slug}`} onClick={handleClick} className="group cursor-pointer block">
+      {children}
+    </a>
+  )
+}
+
 export function PostNavigation({ previous, next }: PostNavigationProps) {
   if (!previous && !next) return null
 
@@ -16,11 +68,8 @@ export function PostNavigation({ previous, next }: PostNavigationProps) {
     <nav className="grid grid-cols-2 gap-6 border-t border-border pt-8 mt-8">
       <div>
         {previous && (
-          <Link
-            href={`/posts/${previous.slug}`}
-            className="group cursor-pointer block"
-          >
-            <div className="w-full h-0 pb-[56.25%] relative rounded overflow-hidden cover-vignette mb-2">
+          <NavLink slug={previous.slug} coverSelector="[data-nav-cover]">
+            <div data-nav-cover className="w-full h-0 pb-[56.25%] relative rounded overflow-hidden cover-vignette mb-2">
               {previous.coverImageUrl ? (
                 <CoverMedia imageUrl={previous.coverImageUrl} animationUrl={previous.coverAnimationUrl} alt={previous.title} className="absolute inset-0 w-full h-full object-cover dark:brightness-[0.85]" />
               ) : (
@@ -34,16 +83,13 @@ export function PostNavigation({ previous, next }: PostNavigationProps) {
               <ChevronLeft size={14} className="text-muted group-hover:text-accent transition-colors shrink-0" />
               <span className="text-[10px] text-muted font-sans uppercase tracking-[0.2em]">Previous</span>
             </div>
-          </Link>
+          </NavLink>
         )}
       </div>
       <div>
         {next && (
-          <Link
-            href={`/posts/${next.slug}`}
-            className="group cursor-pointer block"
-          >
-            <div className="w-full h-0 pb-[56.25%] relative rounded overflow-hidden cover-vignette mb-2">
+          <NavLink slug={next.slug} coverSelector="[data-nav-cover]">
+            <div data-nav-cover className="w-full h-0 pb-[56.25%] relative rounded overflow-hidden cover-vignette mb-2">
               {next.coverImageUrl ? (
                 <CoverMedia imageUrl={next.coverImageUrl} animationUrl={next.coverAnimationUrl} alt={next.title} className="absolute inset-0 w-full h-full object-cover dark:brightness-[0.85]" />
               ) : (
@@ -57,7 +103,7 @@ export function PostNavigation({ previous, next }: PostNavigationProps) {
               <span className="text-[10px] text-muted font-sans uppercase tracking-[0.2em]">Next</span>
               <ChevronRight size={14} className="text-muted group-hover:text-accent transition-colors shrink-0" />
             </div>
-          </Link>
+          </NavLink>
         )}
       </div>
     </nav>

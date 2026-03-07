@@ -10,7 +10,6 @@ import { AuthorCard } from '@/components/AuthorCard'
 import { ShareLinks } from '@/components/ShareLinks'
 import { PostNavigation } from '@/components/PostNavigation'
 import { SubscribeForm } from '@/components/SubscribeForm'
-import { ScrollReveal } from '@/components/ScrollReveal'
 import { ReadingProgress } from '@/components/ReadingProgress'
 import { CountUp } from '@/components/CountUp'
 import { CoverMedia } from '@/components/CoverMedia'
@@ -26,8 +25,6 @@ export function PostContent() {
   const [notFound, setNotFound] = useState(false)
 
   useEffect(() => {
-    window.scrollTo(0, 0)
-
     if (!slug || slug === 'posts') {
       setNotFound(true)
       setLoading(false)
@@ -122,7 +119,7 @@ export function PostContent() {
         }}
       />
       <article>
-        <header className="mb-10 text-center">
+        <header className="mb-10 text-center" style={{ viewTransitionName: 'article-header' }}>
           <div className="animate-fade-in-up flex items-center justify-center gap-3 mb-5">
             <span className="text-[10px] font-sans font-medium tracking-[0.3em] uppercase text-muted">
               No. <CountUp target={briefNumber} />
@@ -145,7 +142,7 @@ export function PostContent() {
         </header>
 
         {post.coverImageUrl && (
-          <div className="mb-10 -mx-4 sm:mx-0 relative cover-vignette cover-vignette-lg bg-[#f5f0e8] dark:bg-[#1a1a1a]" style={{ aspectRatio: '16/9' }}>
+          <div data-article-cover className="mb-10 -mx-4 sm:mx-0 relative cover-vignette cover-vignette-lg bg-[#f5f0e8] dark:bg-[#1a1a1a]" style={{ aspectRatio: '16/9', viewTransitionName: 'cover-hero' }}>
             <CoverMedia
               imageUrl={post.coverImageUrl}
               animationUrl={post.coverAnimationUrl}
@@ -155,28 +152,19 @@ export function PostContent() {
           </div>
         )}
 
-        <div className="decorative-rule"><span className="diamond" /></div>
+        <div style={{ viewTransitionName: 'article-body' }}>
+          <div className="decorative-rule"><span className="diamond" /></div>
 
-        <ScrollReveal>
           <div className="prose prose-lg max-w-none dark:prose-invert drop-cap">
             <ReactMarkdown remarkPlugins={[remarkGfm]}>{post.body}</ReactMarkdown>
           </div>
-        </ScrollReveal>
 
-        <ScrollReveal delay={0.1}>
           <ShareLinks title={post.title} slug={slug} />
-        </ScrollReveal>
-        <ScrollReveal delay={0.15}>
           <AuthorCard />
-        </ScrollReveal>
-        <ScrollReveal delay={0.2}>
           <PostNavigation previous={previous} next={next} />
-        </ScrollReveal>
+          <SubscribeForm />
+        </div>
       </article>
-
-      <ScrollReveal delay={0.1}>
-        <SubscribeForm />
-      </ScrollReveal>
     </>
   )
 }

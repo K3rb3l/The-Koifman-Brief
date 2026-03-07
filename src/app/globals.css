@@ -429,22 +429,59 @@ body {
 }
 
 /* View Transitions */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+@keyframes vtFadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
 }
 
-@keyframes fadeOut {
-  from { opacity: 1; transform: translateY(0); }
-  to { opacity: 0; transform: translateY(-8px); }
+@keyframes vtFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
+/* Header — frozen, no animation */
+::view-transition-old(site-header),
+::view-transition-new(site-header) {
+  animation: none;
+}
+
+/* Cover — shared element morph (grows and glides to article position) */
+::view-transition-group(cover-hero) {
+  animation-duration: 0.5s;
+  animation-timing-function: cubic-bezier(0.2, 0, 0.2, 1);
+}
+
+::view-transition-old(cover-hero),
+::view-transition-new(cover-hero) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+/* Root content (includes footer) — quick crossfade */
 ::view-transition-old(root) {
-  animation: fadeOut 0.2s ease-out forwards;
+  animation: vtFadeOut 0.2s ease-out forwards;
 }
 
 ::view-transition-new(root) {
-  animation: fadeIn 0.3s ease-out forwards;
+  animation: vtFadeIn 0.3s ease-out forwards;
+}
+
+/* Article header — appears immediately when cover lands */
+::view-transition-old(article-header) {
+  animation: vtFadeOut 0.3s ease-out forwards;
+}
+
+::view-transition-new(article-header) {
+  animation: vtFadeIn 0.3s ease-out 0.45s both;
+}
+
+/* Article body — appears right after header */
+::view-transition-old(article-body) {
+  animation: vtFadeOut 0.3s ease-out forwards;
+}
+
+::view-transition-new(article-body) {
+  animation: vtFadeIn 0.3s ease-out 0.55s both;
 }
 
 /* Skeleton loading shimmer */
@@ -630,6 +667,18 @@ html {
 
   ::view-transition-old(root),
   ::view-transition-new(root) {
+    animation: none;
+  }
+
+  ::view-transition-group(cover-hero),
+  ::view-transition-old(cover-hero),
+  ::view-transition-new(cover-hero),
+  ::view-transition-old(site-header),
+  ::view-transition-new(site-header),
+  ::view-transition-new(article-header),
+  ::view-transition-old(article-header),
+  ::view-transition-new(article-body),
+  ::view-transition-old(article-body) {
     animation: none;
   }
 }
