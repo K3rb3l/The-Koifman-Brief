@@ -119,7 +119,7 @@ export function PostContent() {
         }}
       />
       <article>
-        <header className="mb-10 text-center">
+        <header className="mb-10 text-center" style={{ viewTransitionName: 'article-header' }}>
           <div className="animate-fade-in-up flex items-center justify-center gap-3 mb-5">
             <span className="text-[10px] font-sans font-medium tracking-[0.3em] uppercase text-muted">
               No. <CountUp target={briefNumber} />
@@ -142,7 +142,7 @@ export function PostContent() {
         </header>
 
         {post.coverImageUrl && (
-          <div className="mb-10 -mx-4 sm:mx-0 relative cover-vignette cover-vignette-lg bg-[#f5f0e8] dark:bg-[#1a1a1a]" style={{ aspectRatio: '16/9' }}>
+          <div data-article-cover className="mb-10 -mx-4 sm:mx-0 relative cover-vignette cover-vignette-lg bg-[#f5f0e8] dark:bg-[#1a1a1a]" style={{ aspectRatio: '16/9', viewTransitionName: 'cover-hero' }}>
             <CoverMedia
               imageUrl={post.coverImageUrl}
               animationUrl={post.coverAnimationUrl}
@@ -152,7 +152,7 @@ export function PostContent() {
           </div>
         )}
 
-        <div>
+        <div style={{ viewTransitionName: 'article-body' }}>
           <div className="decorative-rule"><span className="diamond" /></div>
 
           <div className="prose prose-lg max-w-none dark:prose-invert drop-cap">
