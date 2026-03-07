@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
 import { getPublishedPosts, getCachedPublishedPosts } from '@/lib/posts'
 import { PostCard } from '@/components/PostCard'
@@ -9,6 +9,7 @@ import { ScrollReveal } from '@/components/ScrollReveal'
 import { CursorSpotlight } from '@/components/CursorSpotlight'
 import { AnimatedPortrait } from '@/components/AnimatedPortrait'
 import { PostCardSkeleton } from '@/components/PostCardSkeleton'
+import { HeroSkeleton } from '@/components/HeroSkeleton'
 import { prefetchVideos } from '@/lib/video-cache'
 import type { Post } from '@/types/post'
 
@@ -34,7 +35,10 @@ function preloadCoverImages(posts: Post[]): Promise<void> {
 export function HomeContent() {
   const [posts, setPosts] = useState<Post[]>([])
   const [loading, setLoading] = useState(true)
+  const [portraitReady, setPortraitReady] = useState(false)
   const [error, setError] = useState('')
+
+  const handlePortraitReady = useCallback(() => setPortraitReady(true), [])
 
   useEffect(() => {
     const cached = getCachedPublishedPosts()
@@ -84,10 +88,20 @@ export function HomeContent() {
 
   return (
     <div>
-      <section className="animate-fade-in-up mb-16 flex flex-col items-center text-center">
+      {!portraitReady && <HeroSkeleton />}
+      <section
+        className="mb-16 flex flex-col items-center text-center"
+        style={{
+          opacity: portraitReady ? 1 : 0,
+          transition: 'opacity 0.4s ease-out',
+          position: portraitReady ? 'relative' : 'absolute',
+          pointerEvents: portraitReady ? 'auto' : 'none',
+        }}
+      >
         <Link href="/about" className="mb-5 group">
           <AnimatedPortrait
             className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover portrait-ring group-hover:ring-accent/50 transition-all duration-300"
+            onReady={handlePortraitReady}
           />
         </Link>
         <p className="text-[11px] font-sans font-medium tracking-[0.3em] uppercase text-muted mb-3">

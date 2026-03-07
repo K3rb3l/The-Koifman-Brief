@@ -8,7 +8,7 @@ const VIDEO_URL =
 const STATIC_URL =
   'https://storage.googleapis.com/the-koifman-brief-images/images/shahar-koifman-sketch.png'
 
-export function AnimatedPortrait({ className }: { className?: string }) {
+export function AnimatedPortrait({ className, onReady }: { className?: string; onReady?: () => void }) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const [loaded, setLoaded] = useState(false)
 
@@ -35,6 +35,7 @@ export function AnimatedPortrait({ className }: { className?: string }) {
       <img
         src={STATIC_URL}
         alt="Shahar Koifman"
+        onLoad={onReady}
         style={{ width: '100%', height: '100%', objectFit: 'cover' }}
       />
       <video
