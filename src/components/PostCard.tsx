@@ -36,12 +36,9 @@ export function PostCard({ slug, title, date, category, excerpt, coverImageUrl, 
   const router = useRouter()
 
   function handleClick(e: React.MouseEvent<HTMLAnchorElement>) {
-    e.preventDefault()
+    if (!document.startViewTransition) return // Let Link navigate naturally
 
-    if (!document.startViewTransition) {
-      router.push(`/posts/${slug}`)
-      return
-    }
+    e.preventDefault()
 
     // Tag this card's cover for shared element morph
     const coverEl = e.currentTarget.querySelector('[data-cover]') as HTMLElement | null

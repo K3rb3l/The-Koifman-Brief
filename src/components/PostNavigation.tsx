@@ -30,12 +30,9 @@ function NavLink({ slug, children, coverSelector }: { slug: string; children: Re
   const router = useRouter()
 
   function handleClick(e: React.MouseEvent<HTMLAnchorElement>) {
-    e.preventDefault()
+    if (!document.startViewTransition) return // Let Link navigate naturally
 
-    if (!document.startViewTransition) {
-      router.push(`/posts/${slug}`)
-      return
-    }
+    e.preventDefault()
 
     const coverEl = e.currentTarget.querySelector(coverSelector) as HTMLElement | null
     if (coverEl) coverEl.style.viewTransitionName = 'cover-hero'
