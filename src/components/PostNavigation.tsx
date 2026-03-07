@@ -12,20 +12,6 @@ type PostNavigationProps = {
   next: NavItem | null
 }
 
-function waitForElement(selector: string): Promise<void> {
-  if (document.querySelector(selector)) return Promise.resolve()
-  return new Promise((resolve) => {
-    const observer = new MutationObserver(() => {
-      if (document.querySelector(selector)) {
-        observer.disconnect()
-        resolve()
-      }
-    })
-    observer.observe(document.body, { childList: true, subtree: true })
-    setTimeout(() => { observer.disconnect(); resolve() }, 2000)
-  })
-}
-
 function NavLink({ slug, children, coverSelector }: { slug: string; children: React.ReactNode; coverSelector: string }) {
   const router = useRouter()
 
@@ -37,23 +23,20 @@ function NavLink({ slug, children, coverSelector }: { slug: string; children: Re
     const coverEl = e.currentTarget.querySelector(coverSelector) as HTMLElement | null
     if (coverEl) coverEl.style.viewTransitionName = 'cover-hero'
 
-    // Clear old article's cover-hero name and marker so we detect the NEW page
+    // Clear old article's cover-hero name so there's no duplicate
     const oldCover = document.querySelector('[data-article-cover]') as HTMLElement | null
     if (oldCover) {
       oldCover.style.viewTransitionName = ''
       oldCover.removeAttribute('data-article-cover')
     }
 
-    try {
-      const transition = document.startViewTransition(async () => {
-        router.push(`/posts/${slug}`)
-        await waitForElement('[data-article-cover]')
-        window.scrollTo({ top: 0, behavior: 'instant' })
-      })
-      transition.finished.catch(() => {})
-    } catch {
+    const transition = document.startViewTransition(() => {
       router.push(`/posts/${slug}`)
-    }
+      window.scrollTo({ top: 0, behavior: 'instant' })
+    })
+    transition.finished.finally(() => {
+      if (coverEl) coverEl.style.viewTransitionName = ''
+    })
   }
 
   return (

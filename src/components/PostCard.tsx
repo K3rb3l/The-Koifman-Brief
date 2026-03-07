@@ -18,20 +18,6 @@ type PostCardProps = {
   isLatest?: boolean
 }
 
-function waitForElement(selector: string): Promise<void> {
-  if (document.querySelector(selector)) return Promise.resolve()
-  return new Promise((resolve) => {
-    const observer = new MutationObserver(() => {
-      if (document.querySelector(selector)) {
-        observer.disconnect()
-        resolve()
-      }
-    })
-    observer.observe(document.body, { childList: true, subtree: true })
-    setTimeout(() => { observer.disconnect(); resolve() }, 2000)
-  })
-}
-
 export function PostCard({ slug, title, date, category, excerpt, coverImageUrl, coverAnimationUrl, briefNumber, isLatest }: PostCardProps) {
   const router = useRouter()
 
@@ -40,20 +26,22 @@ export function PostCard({ slug, title, date, category, excerpt, coverImageUrl, 
 
     e.preventDefault()
 
+    // Clear any stale cover-hero names from previous transitions
+    document.querySelectorAll('[data-cover]').forEach(el => {
+      ;(el as HTMLElement).style.viewTransitionName = ''
+    })
+
     // Tag this card's cover for shared element morph
     const coverEl = e.currentTarget.querySelector('[data-cover]') as HTMLElement | null
     if (coverEl) coverEl.style.viewTransitionName = 'cover-hero'
 
-    try {
-      const transition = document.startViewTransition(async () => {
-        router.push(`/posts/${slug}`)
-        await waitForElement('[data-article-cover]')
-        window.scrollTo({ top: 0, behavior: 'instant' })
-      })
-      transition.finished.catch(() => {})
-    } catch {
+    const transition = document.startViewTransition(() => {
       router.push(`/posts/${slug}`)
-    }
+      window.scrollTo({ top: 0, behavior: 'instant' })
+    })
+    transition.finished.finally(() => {
+      if (coverEl) coverEl.style.viewTransitionName = ''
+    })
   }
 
   return (
