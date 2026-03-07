@@ -457,13 +457,14 @@ body {
   mix-blend-mode: normal;
 }
 
-/* Root content (includes footer) — quick crossfade */
+/* Root content — old fades out over static new (prevents flicker) */
 ::view-transition-old(root) {
   animation: vtFadeOut 0.2s ease-out forwards;
+  z-index: 1;
 }
 
 ::view-transition-new(root) {
-  animation: vtFadeIn 0.3s ease-out forwards;
+  animation: none;
 }
 
 /* Article header — appears immediately when cover lands */
