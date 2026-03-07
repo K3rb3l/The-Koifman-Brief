@@ -1,6 +1,5 @@
 'use client'
 
-import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { formatDate, slugToTitle } from '@/lib/utils'
 import { CountUp } from './CountUp'
@@ -18,35 +17,46 @@ type PostCardProps = {
   isLatest?: boolean
 }
 
+function waitForElement(selector: string): Promise<void> {
+  if (document.querySelector(selector)) return Promise.resolve()
+  return new Promise((resolve) => {
+    const observer = new MutationObserver(() => {
+      if (document.querySelector(selector)) {
+        observer.disconnect()
+        resolve()
+      }
+    })
+    observer.observe(document.body, { childList: true, subtree: true })
+    setTimeout(() => { observer.disconnect(); resolve() }, 2000)
+  })
+}
+
 export function PostCard({ slug, title, date, category, excerpt, coverImageUrl, coverAnimationUrl, briefNumber, isLatest }: PostCardProps) {
   const router = useRouter()
 
   function handleClick(e: React.MouseEvent<HTMLAnchorElement>) {
-    if (!document.startViewTransition) return // Let Link navigate naturally
-
     e.preventDefault()
 
-    // Clear any stale cover-hero names from previous transitions
-    document.querySelectorAll('[data-cover]').forEach(el => {
-      ;(el as HTMLElement).style.viewTransitionName = ''
-    })
+    if (!document.startViewTransition) {
+      router.push(`/posts/${slug}`)
+      return
+    }
 
     // Tag this card's cover for shared element morph
     const coverEl = e.currentTarget.querySelector('[data-cover]') as HTMLElement | null
     if (coverEl) coverEl.style.viewTransitionName = 'cover-hero'
 
-    const transition = document.startViewTransition(() => {
+    const transition = document.startViewTransition(async () => {
       router.push(`/posts/${slug}`)
+      await waitForElement('[data-article-cover]')
       window.scrollTo({ top: 0, behavior: 'instant' })
     })
-    transition.finished.finally(() => {
-      if (coverEl) coverEl.style.viewTransitionName = ''
-    })
+    transition.finished.catch(() => {})
   }
 
   return (
     <article className="group">
-      <Link
+      <a
         href={`/posts/${slug}`}
         onClick={handleClick}
         className="block cursor-pointer -mx-5 px-5 py-5 rounded-sm transition-all duration-500 ease-out group-hover:bg-accent/[0.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background text-center"
@@ -112,7 +122,7 @@ export function PostCard({ slug, title, date, category, excerpt, coverImageUrl, 
             <path d="M6 3l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </span>
-      </Link>
+      </a>
     </article>
   )
 }
