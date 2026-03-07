@@ -47,19 +47,16 @@ export function PostCard({ slug, title, date, category, excerpt, coverImageUrl, 
     const coverEl = e.currentTarget.querySelector('[data-cover]') as HTMLElement | null
     if (coverEl) coverEl.style.viewTransitionName = 'cover-hero'
 
-    // Wait a frame so the browser paints with the new viewTransitionName before capturing
-    requestAnimationFrame(() => {
-      try {
-        const transition = document.startViewTransition(async () => {
-          router.push(`/posts/${slug}`)
-          await waitForElement('[data-article-cover]')
-          window.scrollTo({ top: 0, behavior: 'instant' })
-        })
-        transition.finished.catch(() => {})
-      } catch {
+    try {
+      const transition = document.startViewTransition(async () => {
         router.push(`/posts/${slug}`)
-      }
-    })
+        await waitForElement('[data-article-cover]')
+        window.scrollTo({ top: 0, behavior: 'instant' })
+      })
+      transition.finished.catch(() => {})
+    } catch {
+      router.push(`/posts/${slug}`)
+    }
   }
 
   return (
