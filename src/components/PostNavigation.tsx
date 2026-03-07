@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { CoverMedia } from './CoverMedia'
@@ -59,9 +60,9 @@ function NavLink({ slug, children, coverSelector }: { slug: string; children: Re
   }
 
   return (
-    <a href={`/posts/${slug}`} onClick={handleClick} className="group cursor-pointer block">
+    <Link href={`/posts/${slug}`} onClick={handleClick} className="group cursor-pointer block">
       {children}
-    </a>
+    </Link>
   )
 }
 
