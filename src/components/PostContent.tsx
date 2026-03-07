@@ -24,7 +24,6 @@ export function PostContent() {
   const [allPosts, setAllPosts] = useState<Post[]>([])
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
-  const [coverLoaded, setCoverLoaded] = useState(false)
 
   useEffect(() => {
     window.scrollTo(0, 0)
@@ -42,7 +41,6 @@ export function PostContent() {
       if (cachedPost && cachedPost.published) {
         setPost(cachedPost)
         setAllPosts(cached)
-        setCoverLoaded(false)
         setLoading(false)
       }
     }
@@ -147,16 +145,12 @@ export function PostContent() {
         </header>
 
         {post.coverImageUrl && (
-          <div className="mb-10 -mx-4 sm:mx-0 relative cover-vignette cover-vignette-lg" style={{ aspectRatio: '16/9' }}>
-            {!coverLoaded && (
-              <div className="absolute inset-0 skeleton-shimmer rounded-lg" />
-            )}
+          <div className="mb-10 -mx-4 sm:mx-0 relative cover-vignette cover-vignette-lg bg-[#f5f0e8] dark:bg-[#1a1a1a]" style={{ aspectRatio: '16/9' }}>
             <CoverMedia
               imageUrl={post.coverImageUrl}
               animationUrl={post.coverAnimationUrl}
               alt={post.title}
-              className={`absolute inset-0 w-full h-full object-cover rounded-lg dark:brightness-[0.85] dark:contrast-[1.1] transition-opacity duration-500 ${coverLoaded ? 'opacity-100' : 'opacity-0'}`}
-              onLoad={() => setCoverLoaded(true)}
+              className="absolute inset-0 w-full h-full object-cover rounded-lg dark:brightness-[0.85] dark:contrast-[1.1]"
             />
           </div>
         )}

@@ -5,6 +5,7 @@ import { getPublishedPosts, getCachedPublishedPosts } from '@/lib/posts'
 import { PostCard } from '@/components/PostCard'
 import { ScrollReveal } from '@/components/ScrollReveal'
 import { PostCardSkeleton } from '@/components/PostCardSkeleton'
+import { prefetchVideos } from '@/lib/video-cache'
 import type { Post } from '@/types/post'
 
 function preloadImages(posts: Post[]): Promise<void> {
@@ -46,6 +47,13 @@ export function ArticlesContent() {
   }, [])
 
   const totalBriefs = posts.length
+
+  useEffect(() => {
+    const videoUrls = posts
+      .map((p) => p.coverAnimationUrl)
+      .filter(Boolean) as string[]
+    if (videoUrls.length > 0) prefetchVideos(videoUrls)
+  }, [posts.length])
 
   return (
     <div>

@@ -9,6 +9,7 @@ import { ScrollReveal } from '@/components/ScrollReveal'
 import { CursorSpotlight } from '@/components/CursorSpotlight'
 import { AnimatedPortrait } from '@/components/AnimatedPortrait'
 import { PostCardSkeleton } from '@/components/PostCardSkeleton'
+import { prefetchVideos } from '@/lib/video-cache'
 import type { Post } from '@/types/post'
 
 const POSTS_PER_PAGE = 3
@@ -64,6 +65,13 @@ export function HomeContent() {
   const [pageLoading, setPageLoading] = useState(false)
   const totalPages = Math.ceil(posts.length / POSTS_PER_PAGE)
   const paginatedPosts = posts.slice((page - 1) * POSTS_PER_PAGE, page * POSTS_PER_PAGE)
+
+  useEffect(() => {
+    const videoUrls = paginatedPosts
+      .map((p) => p.coverAnimationUrl)
+      .filter(Boolean) as string[]
+    if (videoUrls.length > 0) prefetchVideos(videoUrls)
+  }, [page, posts.length])
 
   function goToPage(nextPage: number) {
     setPageLoading(true)

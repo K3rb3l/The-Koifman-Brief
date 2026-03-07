@@ -31,14 +31,10 @@ export function extractPosterFrame(file: File): Promise<Blob> {
     }
 
     video.onloadeddata = () => {
-      // If currentTime is already 0, capture directly
-      // Otherwise seek to 0 and wait
-      if (video.currentTime === 0 && video.videoWidth > 0) {
-        captureFrame()
-      } else {
-        video.onseeked = captureFrame
-        video.currentTime = 0
-      }
+      // Seek to 0.1s to force the browser to decode a visible frame
+      // (seeking to exactly 0 can yield a black frame on some codecs)
+      video.onseeked = captureFrame
+      video.currentTime = 0.1
     }
 
     video.onerror = () => {
