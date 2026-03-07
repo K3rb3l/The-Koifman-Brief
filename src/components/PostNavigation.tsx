@@ -12,30 +12,15 @@ type PostNavigationProps = {
   next: NavItem | null
 }
 
-function NavLink({ slug, children, coverSelector }: { slug: string; children: React.ReactNode; coverSelector: string }) {
+function NavLink({ slug, children }: { slug: string; children: React.ReactNode; coverSelector: string }) {
   const router = useRouter()
 
   function handleClick(e: React.MouseEvent<HTMLAnchorElement>) {
-    if (!document.startViewTransition) return // Let Link navigate naturally
+    if (!document.startViewTransition) return
 
     e.preventDefault()
-
-    const coverEl = e.currentTarget.querySelector(coverSelector) as HTMLElement | null
-    if (coverEl) coverEl.style.viewTransitionName = 'cover-hero'
-
-    // Clear old article's cover-hero name so there's no duplicate
-    const oldCover = document.querySelector('[data-article-cover]') as HTMLElement | null
-    if (oldCover) {
-      oldCover.style.viewTransitionName = ''
-      oldCover.removeAttribute('data-article-cover')
-    }
-
-    const transition = document.startViewTransition(() => {
+    document.startViewTransition(() => {
       router.push(`/posts/${slug}`)
-      window.scrollTo({ top: 0, behavior: 'instant' })
-    })
-    transition.finished.finally(() => {
-      if (coverEl) coverEl.style.viewTransitionName = ''
     })
   }
 
@@ -54,7 +39,7 @@ export function PostNavigation({ previous, next }: PostNavigationProps) {
       <div>
         {previous && (
           <NavLink slug={previous.slug} coverSelector="[data-nav-cover]">
-            <div data-nav-cover className="w-full h-0 pb-[56.25%] relative rounded overflow-hidden cover-vignette mb-2">
+            <div className="w-full h-0 pb-[56.25%] relative rounded overflow-hidden cover-vignette mb-2">
               {previous.coverImageUrl ? (
                 <CoverMedia imageUrl={previous.coverImageUrl} animationUrl={previous.coverAnimationUrl} alt={previous.title} className="absolute inset-0 w-full h-full object-cover dark:brightness-[0.85]" />
               ) : (
@@ -74,7 +59,7 @@ export function PostNavigation({ previous, next }: PostNavigationProps) {
       <div>
         {next && (
           <NavLink slug={next.slug} coverSelector="[data-nav-cover]">
-            <div data-nav-cover className="w-full h-0 pb-[56.25%] relative rounded overflow-hidden cover-vignette mb-2">
+            <div className="w-full h-0 pb-[56.25%] relative rounded overflow-hidden cover-vignette mb-2">
               {next.coverImageUrl ? (
                 <CoverMedia imageUrl={next.coverImageUrl} animationUrl={next.coverAnimationUrl} alt={next.title} className="absolute inset-0 w-full h-full object-cover dark:brightness-[0.85]" />
               ) : (

@@ -22,25 +22,11 @@ export function PostCard({ slug, title, date, category, excerpt, coverImageUrl, 
   const router = useRouter()
 
   function handleClick(e: React.MouseEvent<HTMLAnchorElement>) {
-    if (!document.startViewTransition) return // Let Link navigate naturally
+    if (!document.startViewTransition) return
 
     e.preventDefault()
-
-    // Clear any stale cover-hero names from previous transitions
-    document.querySelectorAll('[data-cover]').forEach(el => {
-      ;(el as HTMLElement).style.viewTransitionName = ''
-    })
-
-    // Tag this card's cover for shared element morph
-    const coverEl = e.currentTarget.querySelector('[data-cover]') as HTMLElement | null
-    if (coverEl) coverEl.style.viewTransitionName = 'cover-hero'
-
-    const transition = document.startViewTransition(() => {
+    document.startViewTransition(() => {
       router.push(`/posts/${slug}`)
-      window.scrollTo({ top: 0, behavior: 'instant' })
-    })
-    transition.finished.finally(() => {
-      if (coverEl) coverEl.style.viewTransitionName = ''
     })
   }
 
@@ -77,7 +63,7 @@ export function PostCard({ slug, title, date, category, excerpt, coverImageUrl, 
         </div>
 
         {coverImageUrl && (
-          <div data-cover className="relative cover-vignette mb-3 sm:w-[70%] sm:mx-auto bg-[#f5f0e8] dark:bg-[#1a1a1a]" style={{ aspectRatio: '16/9' }}>
+          <div className="relative cover-vignette mb-3 sm:w-[70%] sm:mx-auto bg-[#f5f0e8] dark:bg-[#1a1a1a]" style={{ aspectRatio: '16/9' }}>
             <CoverMedia
               imageUrl={coverImageUrl}
               animationUrl={coverAnimationUrl}
