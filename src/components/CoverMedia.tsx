@@ -1,8 +1,7 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { getCachedVideoUrl, onVideoCached } from '@/lib/video-cache'
-import { useState } from 'react'
 
 type CoverMediaProps = {
   imageUrl: string
@@ -12,26 +11,13 @@ type CoverMediaProps = {
   onLoad?: () => void
 }
 
-const VIEW_TRANSITION_DURATION = 0.5
-const TIME_TRACK_INTERVAL_MS = 200
-
-const videoTimeStore: Record<string, number> = {}
-
-let transitionDone: Promise<void> = Promise.resolve()
-
-export function setTransitionPromise(promise: Promise<void>) {
-  transitionDone = promise
-}
-
-function getVideoTime(url: string): number {
-  return videoTimeStore[url] || 0
-}
-
 function prefersReducedMotion(): boolean {
   return typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
 }
 
-function useVideoSource(animationUrl?: string) {
+export function CoverMedia({ imageUrl, animationUrl, alt, className = '', onLoad }: CoverMediaProps) {
+  const [imgLoaded, setImgLoaded] = useState(false)
+  const [videoReady, setVideoReady] = useState(false)
   const [videoSrc, setVideoSrc] = useState(animationUrl)
 
   useEffect(() => {
@@ -41,58 +27,47 @@ function useVideoSource(animationUrl?: string) {
       setVideoSrc(cached)
       return
     }
-    return onVideoCached(animationUrl, setVideoSrc)
+    return onVideoCached(animationUrl, (blobUrl) => setVideoSrc(blobUrl))
   }, [animationUrl])
 
-  return videoSrc
-}
-
-function useTrackPlaybackTime(videoRef: React.RefObject<HTMLVideoElement | null>, animationUrl?: string) {
-  useEffect(() => {
-    const video = videoRef.current
-    if (!animationUrl || !video) return
-
-    const onTimeUpdate = () => {
-      videoTimeStore[animationUrl] = video.currentTime
-    }
-    video.addEventListener('timeupdate', onTimeUpdate)
-    return () => video.removeEventListener('timeupdate', onTimeUpdate)
-  }, [animationUrl])
-}
-
-export function CoverMedia({ imageUrl, animationUrl, alt, className = '', onLoad }: CoverMediaProps) {
-  const videoRef = useRef<HTMLVideoElement>(null)
-  const videoSrc = useVideoSource(animationUrl)
-  const showVideo = videoSrc && !prefersReducedMotion()
-
-  useTrackPlaybackTime(videoRef, animationUrl)
-
-  function handleVideoLoaded(e: React.SyntheticEvent<HTMLVideoElement>) {
-    const video = e.currentTarget
-    const savedTime = animationUrl ? getVideoTime(animationUrl) : 0
-    if (savedTime > 0) {
-      // Seek to the exact frame, then wait for transition to finish before playing
-      video.currentTime = savedTime % video.duration
-      transitionDone.then(() => video.play())
-    } else {
-      video.play()
-    }
+  function handleImgLoad() {
+    setImgLoaded(true)
+    onLoad?.()
   }
 
-  if (showVideo) {
+  if (videoSrc && !prefersReducedMotion()) {
     return (
-      <video
-        ref={videoRef}
-        src={videoSrc}
-        loop
-        muted
-        playsInline
-        preload="auto"
-        onLoadedData={handleVideoLoaded}
-        className={className}
-      />
+      <>
+        <div
+          className="absolute inset-0 skeleton-shimmer rounded-lg"
+          style={{ opacity: imgLoaded ? 0 : 1, transition: 'opacity 400ms ease-in-out', pointerEvents: 'none' }}
+        />
+        <img src={imageUrl} alt={alt} className={className} onLoad={handleImgLoad} />
+        <video
+          src={videoSrc}
+          poster={imageUrl}
+          autoPlay
+          loop
+          muted
+          playsInline
+          onLoadedData={() => setVideoReady(true)}
+          className={className}
+          style={{
+            opacity: videoReady ? 1 : 0,
+            transition: 'opacity 400ms ease-in-out',
+          }}
+        />
+      </>
     )
   }
 
-  return <img src={imageUrl} alt={alt} className={className} onLoad={onLoad} />
+  return (
+    <>
+      <div
+        className="absolute inset-0 skeleton-shimmer rounded-lg"
+        style={{ opacity: imgLoaded ? 0 : 1, transition: 'opacity 400ms ease-in-out', pointerEvents: 'none' }}
+      />
+      <img src={imageUrl} alt={alt} className={className} onLoad={handleImgLoad} />
+    </>
+  )
 }

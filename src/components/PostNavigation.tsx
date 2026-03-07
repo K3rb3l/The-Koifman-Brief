@@ -1,9 +1,8 @@
 'use client'
 
-import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { CoverMedia, setTransitionPromise } from './CoverMedia'
+import { CoverMedia } from './CoverMedia'
 
 type NavItem = { slug: string; title: string; coverImageUrl?: string; coverAnimationUrl?: string }
 
@@ -52,14 +51,13 @@ function NavLink({ slug, children, coverSelector }: { slug: string; children: Re
       await waitForElement('[data-article-cover]')
       window.scrollTo({ top: 0, behavior: 'instant' })
     })
-    setTransitionPromise(transition.finished.catch(() => {}))
     transition.finished.catch(() => {})
   }
 
   return (
-    <Link href={`/posts/${slug}`} onClick={handleClick} className="group cursor-pointer block">
+    <a href={`/posts/${slug}`} onClick={handleClick} className="group cursor-pointer block">
       {children}
-    </Link>
+    </a>
   )
 }
 
