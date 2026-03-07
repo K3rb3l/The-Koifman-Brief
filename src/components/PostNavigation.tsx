@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { CoverMedia } from './CoverMedia'
+import { CoverMedia, setTransitionPromise } from './CoverMedia'
 
 type NavItem = { slug: string; title: string; coverImageUrl?: string; coverAnimationUrl?: string }
 
@@ -51,6 +51,7 @@ function NavLink({ slug, children, coverSelector }: { slug: string; children: Re
       await waitForElement('[data-article-cover]')
       window.scrollTo({ top: 0, behavior: 'instant' })
     })
+    setTransitionPromise(transition.finished.catch(() => {}))
     transition.finished.catch(() => {})
   }
 

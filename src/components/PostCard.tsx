@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { formatDate, slugToTitle } from '@/lib/utils'
 import { CountUp } from './CountUp'
-import { CoverMedia } from './CoverMedia'
+import { CoverMedia, setTransitionPromise } from './CoverMedia'
 
 type PostCardProps = {
   slug: string
@@ -51,6 +51,7 @@ export function PostCard({ slug, title, date, category, excerpt, coverImageUrl, 
       await waitForElement('[data-article-cover]')
       window.scrollTo({ top: 0, behavior: 'instant' })
     })
+    setTransitionPromise(transition.finished.catch(() => {}))
     transition.finished.catch(() => {})
   }
 
