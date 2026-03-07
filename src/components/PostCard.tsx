@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { formatDate, slugToTitle } from '@/lib/utils'
 import { CountUp } from './CountUp'
@@ -57,7 +58,7 @@ export function PostCard({ slug, title, date, category, excerpt, coverImageUrl, 
 
   return (
     <article className="group">
-      <a
+      <Link
         href={`/posts/${slug}`}
         onClick={handleClick}
         className="block cursor-pointer -mx-5 px-5 py-5 rounded-sm transition-all duration-500 ease-out group-hover:bg-accent/[0.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background text-center"
@@ -123,7 +124,7 @@ export function PostCard({ slug, title, date, category, excerpt, coverImageUrl, 
             <path d="M6 3l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </span>
-      </a>
+      </Link>
     </article>
   )
 }
