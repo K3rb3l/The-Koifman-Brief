@@ -70,13 +70,13 @@ export function CoverMedia({ imageUrl, animationUrl, alt, className = '', onLoad
         <video
           ref={videoRef}
           src={videoSrc}
+          poster={imageUrl}
           loop
           muted
           playsInline
           preload="auto"
           onLoadedData={handleVideoLoaded}
           className={className}
-          style={{ opacity: ready ? 1 : 0, transition: 'opacity 400ms ease-in-out' }}
         />
       ) : (
         <img
