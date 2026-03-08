@@ -26,7 +26,7 @@ export function CoverMedia({ imageUrl, animationUrl, alt, className = '', onLoad
   const [ready, setReady] = useState(false)
   const [videoSrc, setVideoSrc] = useState(() => {
     if (!animationUrl) return undefined
-    return getCachedVideoUrl(animationUrl) || animationUrl
+    return getCachedVideoUrl(animationUrl)
   })
 
   useEffect(() => {
@@ -70,23 +70,15 @@ export function CoverMedia({ imageUrl, animationUrl, alt, className = '', onLoad
         <video
           ref={videoRef}
           src={videoSrc}
-          poster={imageUrl}
           loop
           muted
           playsInline
           preload="auto"
           onLoadedData={handleVideoLoaded}
           className={className}
-        />
-      ) : (
-        <img
-          src={imageUrl}
-          alt={alt}
-          className={className}
-          onLoad={() => { setReady(true); onLoad?.() }}
           style={{ opacity: ready ? 1 : 0, transition: 'opacity 400ms ease-in-out' }}
         />
-      )}
+      ) : null}
     </>
   )
 }

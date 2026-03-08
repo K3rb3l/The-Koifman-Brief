@@ -26,9 +26,9 @@ export function prefetchVideos(urls: string[]): void {
 
 async function processQueue(): Promise<void> {
   prefetching = true
-  const batch = prefetchQueue.splice(0)
-  await Promise.all(batch.map(async (url) => {
-    if (cache.has(url)) return
+  while (prefetchQueue.length > 0) {
+    const url = prefetchQueue.shift()!
+    if (cache.has(url)) continue
     try {
       const response = await fetch(url)
       const blob = await response.blob()
@@ -39,7 +39,6 @@ async function processQueue(): Promise<void> {
     } catch {
       // Skip failed downloads silently
     }
-  }))
+  }
   prefetching = false
-  if (prefetchQueue.length > 0) processQueue()
 }
