@@ -24,7 +24,10 @@ function prefersReducedMotion(): boolean {
 export function CoverMedia({ imageUrl, animationUrl, alt, className = '', onLoad }: CoverMediaProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const [ready, setReady] = useState(false)
-  const [videoSrc, setVideoSrc] = useState(animationUrl)
+  const [videoSrc, setVideoSrc] = useState(() => {
+    if (!animationUrl) return undefined
+    return getCachedVideoUrl(animationUrl) || animationUrl
+  })
 
   useEffect(() => {
     if (!animationUrl) return
