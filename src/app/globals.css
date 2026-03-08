@@ -499,18 +499,18 @@ body {
   background: linear-gradient(
     90deg,
     var(--bd) 0%,
-    var(--ac) 25%,
+    color-mix(in srgb, var(--ac) 20%, var(--bd)) 25%,
     var(--bd) 50%,
-    var(--ac) 75%,
+    color-mix(in srgb, var(--ac) 20%, var(--bd)) 75%,
     var(--bd) 100%
   );
   background-size: 200% 100%;
   animation: skeletonShimmer 2.5s ease-in-out infinite;
-  opacity: 0.3;
+  opacity: 0.45;
 }
 
 .dark .skeleton-shimmer {
-  opacity: 0.15;
+  opacity: 0.25;
 }
 
 @media (prefers-reduced-motion: reduce) {

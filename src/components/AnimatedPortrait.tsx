@@ -32,22 +32,18 @@ export function AnimatedPortrait({ className }: { className?: string }) {
 
   return (
     <div className={className} style={{ overflow: 'hidden', position: 'relative' }}>
-      <img
-        src={STATIC_URL}
-        alt="Shahar Koifman"
-        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+      <div
+        className="absolute inset-0 skeleton-shimmer rounded-full"
+        style={{ opacity: loaded ? 0 : 1, transition: 'opacity 400ms ease-in-out', pointerEvents: 'none' }}
       />
       <video
         ref={videoRef}
         src={VIDEO_URL}
-        poster={STATIC_URL}
         loop
         muted
         playsInline
         preload="auto"
         style={{
-          position: 'absolute',
-          inset: 0,
           width: '100%',
           height: '100%',
           objectFit: 'cover',
