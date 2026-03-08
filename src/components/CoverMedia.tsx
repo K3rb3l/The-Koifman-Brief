@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { getCachedVideoUrl, onVideoCached } from '@/lib/video-cache'
+import { getCachedVideoUrl } from '@/lib/video-cache'
 
 type CoverMediaProps = {
   imageUrl: string
@@ -24,20 +24,10 @@ function prefersReducedMotion(): boolean {
 export function CoverMedia({ imageUrl, animationUrl, alt, className = '', onLoad }: CoverMediaProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const [ready, setReady] = useState(false)
-  const [videoSrc, setVideoSrc] = useState(() => {
+  const [videoSrc] = useState(() => {
     if (!animationUrl) return undefined
-    return getCachedVideoUrl(animationUrl)
+    return getCachedVideoUrl(animationUrl) || animationUrl
   })
-
-  useEffect(() => {
-    if (!animationUrl) return
-    const cached = getCachedVideoUrl(animationUrl)
-    if (cached) {
-      setVideoSrc(cached)
-      return
-    }
-    return onVideoCached(animationUrl, (blobUrl) => setVideoSrc(blobUrl))
-  }, [animationUrl])
 
   useEffect(() => {
     const video = videoRef.current
