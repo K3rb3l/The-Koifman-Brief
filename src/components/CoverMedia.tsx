@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { getCachedVideoUrl, onVideoCached } from '@/lib/video-cache'
 
 type CoverMediaProps = {
@@ -11,11 +11,18 @@ type CoverMediaProps = {
   onLoad?: () => void
 }
 
+const videoTimeStore: Record<string, number> = {}
+
+function getVideoTime(url: string): number {
+  return videoTimeStore[url] || 0
+}
+
 function prefersReducedMotion(): boolean {
   return typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
 }
 
 export function CoverMedia({ imageUrl, animationUrl, alt, className = '', onLoad }: CoverMediaProps) {
+  const videoRef = useRef<HTMLVideoElement>(null)
   const [ready, setReady] = useState(false)
   const [videoSrc, setVideoSrc] = useState(animationUrl)
 
@@ -29,6 +36,25 @@ export function CoverMedia({ imageUrl, animationUrl, alt, className = '', onLoad
     return onVideoCached(animationUrl, (blobUrl) => setVideoSrc(blobUrl))
   }, [animationUrl])
 
+  useEffect(() => {
+    const video = videoRef.current
+    if (!animationUrl || !video) return
+    const onTimeUpdate = () => { videoTimeStore[animationUrl] = video.currentTime }
+    video.addEventListener('timeupdate', onTimeUpdate)
+    return () => video.removeEventListener('timeupdate', onTimeUpdate)
+  }, [animationUrl, ready])
+
+  function handleVideoLoaded(e: React.SyntheticEvent<HTMLVideoElement>) {
+    const video = e.currentTarget
+    const savedTime = animationUrl ? getVideoTime(animationUrl) : 0
+    if (savedTime > 0) {
+      video.currentTime = savedTime % video.duration
+    }
+    video.play().catch(() => {})
+    setReady(true)
+    onLoad?.()
+  }
+
   const showVideo = videoSrc && !prefersReducedMotion()
 
   return (
@@ -39,12 +65,13 @@ export function CoverMedia({ imageUrl, animationUrl, alt, className = '', onLoad
       />
       {showVideo ? (
         <video
+          ref={videoRef}
           src={videoSrc}
-          autoPlay
           loop
           muted
           playsInline
-          onLoadedData={() => { setReady(true); onLoad?.() }}
+          preload="auto"
+          onLoadedData={handleVideoLoaded}
           className={className}
           style={{ opacity: ready ? 1 : 0, transition: 'opacity 400ms ease-in-out' }}
         />
