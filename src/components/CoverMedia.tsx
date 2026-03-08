@@ -52,10 +52,9 @@ export function CoverMedia({ imageUrl, animationUrl, alt, className = '', onLoad
 
   return (
     <>
-      <div
-        className="absolute inset-0 skeleton-shimmer rounded-lg"
-        style={{ opacity: ready ? 0 : 1, transition: 'opacity 400ms ease-in-out', pointerEvents: 'none' }}
-      />
+      {!ready && (
+        <div className="absolute inset-0 skeleton-shimmer rounded-lg" style={{ zIndex: 1 }} />
+      )}
       {showVideo ? (
         <video
           ref={videoRef}
@@ -66,7 +65,7 @@ export function CoverMedia({ imageUrl, animationUrl, alt, className = '', onLoad
           preload="auto"
           onLoadedData={handleVideoLoaded}
           className={className}
-          style={{ opacity: ready ? 1 : 0, transition: 'opacity 400ms ease-in-out' }}
+          style={{ zIndex: 2 }}
         />
       ) : null}
     </>
