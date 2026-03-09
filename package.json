@@ -10,7 +10,11 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "postbuild": "next-sitemap",
-    "migrate": "npx tsx scripts/migrate-posts.ts"
+    "migrate": "npx tsx scripts/migrate-posts.ts",
+    "build:en": "NEXT_PUBLIC_LOCALE=en next build",
+    "build:fa": "NEXT_PUBLIC_LOCALE=fa next build",
+    "build:all": "npm run build:en && mv out out-en && npm run build:fa && mv out out-fa && mkdir -p out && cp -r out-en/* out/ && mkdir -p out/fa && cp -r out-fa/* out/fa/ && rm -rf out-en out-fa",
+    "deploy:all": "npm run build:all && firebase deploy --only hosting"
   },
   "dependencies": {
     "@tailwindcss/typography": "^0.5.19",
@@ -26,6 +30,7 @@
     "remark-gfm": "^4.0.1"
   },
   "devDependencies": {
+    "@anthropic-ai/sdk": "^0.78.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
