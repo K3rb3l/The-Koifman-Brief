@@ -1,16 +1,17 @@
-import { readFileSync } from 'fs'
 import Anthropic from '@anthropic-ai/sdk'
-import { initializeApp, cert, getApps } from 'firebase-admin/app'
+import { initializeApp, cert, getApps, type ServiceAccount } from 'firebase-admin/app'
 import { getFirestore } from 'firebase-admin/firestore'
 
 if (getApps().length === 0) {
-  initializeApp({
-    credential: cert(
-      JSON.parse(
-        readFileSync(process.env.GOOGLE_APPLICATION_CREDENTIALS!, 'utf-8')
-      )
-    ),
-  })
+  const serviceAccount = process.env.FIREBASE_SERVICE_ACCOUNT
+    ? JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT) as ServiceAccount
+    : undefined
+
+  initializeApp(
+    serviceAccount
+      ? { credential: cert(serviceAccount) }
+      : { projectId: 'the-koifman-brief' },
+  )
 }
 
 const db = getFirestore()
