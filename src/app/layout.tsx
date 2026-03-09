@@ -6,19 +6,20 @@ import { LoadingAnimation } from '@/components/LoadingAnimation'
 import { BackgroundAnimation } from '@/components/BackgroundAnimation'
 import { GlobalCursorSpotlight } from '@/components/CursorSpotlight'
 import { ScrollToTop } from '@/components/ScrollToTop'
+import { locale, isRTL, t, siteUrl } from '@/lib/i18n'
 import './globals.css'
 
 export const metadata: Metadata = {
   title: {
-    default: 'The Koifman Brief',
-    template: '%s | The Koifman Brief',
+    default: t('brand.name'),
+    template: `%s | ${t('brand.name')}`,
   },
-  description: 'Clarity in complexity. Geopolitics, FinTech, and real estate analysis by Shahar Koifman.',
-  metadataBase: new URL('https://thekoifmanbrief.com'),
+  description: t('meta.description'),
+  metadataBase: new URL(siteUrl),
   openGraph: {
     type: 'website',
-    locale: 'en_US',
-    siteName: 'The Koifman Brief',
+    locale: locale === 'fa' ? 'fa_IR' : 'en_US',
+    siteName: t('brand.name'),
     images: [{ url: '/og-image.png', width: 1200, height: 630 }],
   },
   twitter: {
@@ -33,7 +34,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang={locale} dir={isRTL ? 'rtl' : 'ltr'} suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -41,6 +42,12 @@ export default function RootLayout({
           rel="stylesheet"
           href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Libre+Franklin:wght@300;400;500;600;700&display=swap"
         />
+        {isRTL && (
+          <link
+            rel="stylesheet"
+            href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap"
+          />
+        )}
       </head>
       <body className="min-h-screen flex flex-col">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
