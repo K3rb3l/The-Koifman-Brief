@@ -6,6 +6,7 @@ import { PostCard } from '@/components/PostCard'
 import { ScrollReveal } from '@/components/ScrollReveal'
 import { PostCardSkeleton } from '@/components/PostCardSkeleton'
 import { prefetchVideos } from '@/lib/video-cache'
+import { t } from '@/lib/i18n'
 import type { Post } from '@/types/post'
 
 function preloadImages(posts: Post[]): Promise<void> {
@@ -59,14 +60,14 @@ export function ArticlesContent() {
     <div>
       <header className="mb-12 text-center">
         <p className="text-[10px] font-sans font-medium tracking-[0.3em] uppercase text-muted mb-3">
-          Archive
+          {t('articles.archive')}
         </p>
         <h1 className="font-serif text-3xl font-bold text-foreground">
-          All Briefs
+          {t('articles.allBriefs')}
         </h1>
         {!loading && (
           <p className="text-sm text-muted font-sans mt-2">
-            {posts.length} brief{posts.length !== 1 ? 's' : ''} published
+            {posts.length} {posts.length !== 1 ? t('articles.briefs') : t('articles.brief')} {t('articles.published')}
           </p>
         )}
       </header>
@@ -80,9 +81,11 @@ export function ArticlesContent() {
               <PostCard
                 slug={post.slug}
                 title={post.title}
+                title_fa={post.title_fa}
                 date={post.date}
                 category={post.category}
                 excerpt={post.excerpt}
+                excerpt_fa={post.excerpt_fa}
                 coverImageUrl={post.coverImageUrl}
                 coverAnimationUrl={post.coverAnimationUrl}
                 briefNumber={totalBriefs - i}
@@ -91,7 +94,7 @@ export function ArticlesContent() {
           ))}
         </div>
       ) : (
-        <p className="text-muted font-sans text-center">No briefs yet.</p>
+        <p className="text-muted font-sans text-center">{t('articles.empty')}</p>
       )}
     </div>
   )

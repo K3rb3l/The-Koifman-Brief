@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import { t } from '@/lib/i18n'
 
 export default function Error({
   error,
@@ -16,10 +17,10 @@ export default function Error({
   return (
     <div className="flex flex-col items-center justify-center py-20 text-center">
       <h2 className="font-serif text-2xl font-bold text-foreground mb-4">
-        Something went wrong
+        {t('error.title')}
       </h2>
       <p className="text-muted font-sans text-sm mb-6">
-        Please try refreshing the page.
+        {t('error.message')}
       </p>
       <button
         onClick={() => {
@@ -29,7 +30,7 @@ export default function Error({
         }}
         className="px-6 py-2 bg-accent text-white font-sans text-sm cursor-pointer hover:opacity-90 transition-opacity"
       >
-        Try again
+        {t('error.retry')}
       </button>
     </div>
   )
