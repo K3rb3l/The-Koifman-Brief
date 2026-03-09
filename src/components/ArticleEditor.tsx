@@ -4,7 +4,9 @@ import { useState, useCallback } from 'react'
 import dynamic from 'next/dynamic'
 import { useRouter } from 'next/navigation'
 import { Timestamp } from 'firebase/firestore'
+import { getFunctions, httpsCallable } from 'firebase/functions'
 import { savePost, generateSlug } from '@/lib/posts'
+import { app } from '@/lib/firebase'
 import { uploadPostAnimation, deletePostAnimation, uploadInlineImage } from '@/lib/storage'
 import { extractPosterFrame, createBoomerangVideo } from '@/lib/optimize-video'
 import type { Post, PostCategory, PostFormData } from '@/types/post'
@@ -145,6 +147,36 @@ export function ArticleEditor({ existingPost }: ArticleEditorProps) {
         createdAt: existingPost?.createdAt ?? Timestamp.now(),
         updatedAt: Timestamp.now(),
       })
+
+      // Auto-translate if no Persian content yet
+      if (!form.title_fa && !form.body_fa) {
+        try {
+          setVideoProgress('Translating to Persian...')
+          const functions = getFunctions(app)
+          const translate = httpsCallable(functions, 'translateToFarsi')
+          const result = await translate({
+            title: form.title,
+            excerpt: form.excerpt,
+            body: form.body,
+          })
+          const translated = result.data as { title: string; excerpt: string; body: string }
+
+          await savePost(slug, {
+            title_fa: translated.title,
+            excerpt_fa: translated.excerpt,
+            body_fa: translated.body,
+          }, { merge: true })
+
+          updateField('title_fa', translated.title)
+          updateField('excerpt_fa', translated.excerpt)
+          updateField('body_fa', translated.body)
+        } catch (err) {
+          console.error('Translation failed:', err)
+          // Non-blocking — post is already saved, translation just didn't work
+        } finally {
+          setVideoProgress('')
+        }
+      }
 
       router.push('/admin')
     } catch (err) {

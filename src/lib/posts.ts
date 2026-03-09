@@ -68,8 +68,8 @@ export async function getPost(slug: string): Promise<Post | null> {
   }
 }
 
-export async function savePost(slug: string, data: Omit<Post, 'slug'>): Promise<void> {
-  await setDoc(doc(db, 'posts', slug), data)
+export async function savePost(slug: string, data: Omit<Post, 'slug'> | Partial<Omit<Post, 'slug'>>, options?: { merge?: boolean }): Promise<void> {
+  await setDoc(doc(db, 'posts', slug), data, { merge: options?.merge ?? false })
 }
 
 export async function deletePost(slug: string): Promise<void> {
