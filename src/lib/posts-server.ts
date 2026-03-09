@@ -20,6 +20,8 @@ export type PostMeta = {
   slug: string
   title: string
   excerpt: string
+  title_fa?: string
+  excerpt_fa?: string
   coverImageUrl: string
   coverAnimationUrl?: string
   date: string
@@ -41,6 +43,8 @@ export async function getPublishedPostsServer(): Promise<PostMeta[]> {
       slug: doc.id,
       title: data.title,
       excerpt: data.excerpt,
+      title_fa: data.title_fa,
+      excerpt_fa: data.excerpt_fa,
       coverImageUrl: data.coverImageUrl ?? '',
       coverAnimationUrl: data.coverAnimationUrl,
       date: data.date,

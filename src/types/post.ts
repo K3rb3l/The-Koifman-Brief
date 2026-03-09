@@ -11,6 +11,9 @@ export type Post = {
   coverImageUrl: string
   coverAnimationUrl?: string
   body: string
+  title_fa?: string
+  excerpt_fa?: string
+  body_fa?: string
   published: boolean
   createdAt: Timestamp
   updatedAt: Timestamp
@@ -22,6 +25,9 @@ export type PostFormData = {
   category: PostCategory
   excerpt: string
   body: string
+  title_fa: string
+  excerpt_fa: string
+  body_fa: string
   published: boolean
   coverImage: File | null
   coverImageUrl: string
