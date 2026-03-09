@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { getPublishedPostsServer } from '@/lib/posts-server'
+import { postTitle, postExcerpt, siteUrl } from '@/lib/i18n'
 import { PostContent } from '@/components/PostContent'
 
 export async function generateStaticParams() {
@@ -16,19 +17,24 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   const ogImage = post.coverImageUrl || '/og-image.png'
 
+  const title = postTitle(post)
+  const description = postExcerpt(post)
+
   return {
-    title: post.title,
-    description: post.excerpt,
+    metadataBase: new URL(siteUrl),
+    title,
+    description,
     openGraph: {
-      title: post.title,
-      description: post.excerpt,
+      title,
+      description,
       type: 'article',
+      authors: ['Shahar Koifman'],
       images: [{ url: ogImage, width: 1200, height: 630 }],
     },
     twitter: {
       card: 'summary_large_image',
-      title: post.title,
-      description: post.excerpt,
+      title,
+      description,
       images: [ogImage],
     },
   }

@@ -37,7 +37,7 @@ export async function getPublishedPostsServer(): Promise<PostMeta[]> {
     .orderBy('date', 'desc')
     .get()
 
-  return snapshot.docs.map((doc) => {
+  const posts = snapshot.docs.map((doc) => {
     const data = doc.data()
     return {
       slug: doc.id,
@@ -52,4 +52,10 @@ export async function getPublishedPostsServer(): Promise<PostMeta[]> {
       published: data.published,
     }
   })
+
+  const locale = process.env.NEXT_PUBLIC_LOCALE ?? 'en'
+  if (locale === 'fa') {
+    return posts.filter((p) => p.title_fa)
+  }
+  return posts
 }
