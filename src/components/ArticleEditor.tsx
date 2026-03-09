@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 import { Timestamp } from 'firebase/firestore'
 import { savePost, generateSlug } from '@/lib/posts'
 import { uploadPostAnimation, deletePostAnimation, uploadInlineImage } from '@/lib/storage'
-import { extractPosterFrame } from '@/lib/optimize-video'
+import { extractPosterFrame, createBoomerangVideo } from '@/lib/optimize-video'
 import type { Post, PostCategory, PostFormData } from '@/types/post'
 import { Save, ArrowLeft, Image as ImageIcon, Film, X } from 'lucide-react'
 
@@ -36,6 +36,9 @@ export function ArticleEditor({ existingPost }: ArticleEditorProps) {
     category: existingPost?.category ?? 'geopolitics',
     excerpt: existingPost?.excerpt ?? '',
     body: existingPost?.body ?? '',
+    title_fa: existingPost?.title_fa ?? '',
+    excerpt_fa: existingPost?.excerpt_fa ?? '',
+    body_fa: existingPost?.body_fa ?? '',
     published: existingPost?.published ?? false,
     coverImage: null,
     coverImageUrl: existingPost?.coverImageUrl ?? '',
@@ -51,11 +54,17 @@ export function ArticleEditor({ existingPost }: ArticleEditorProps) {
     const file = e.target.files?.[0]
     if (!file) return
     try {
+      setVideoProgress('Creating boomerang...')
+      const boomerangBlob = await createBoomerangVideo(file, (pct) => {
+        if (pct < 50) setVideoProgress(`Capturing frames... ${pct}%`)
+        else if (pct < 100) setVideoProgress(`Encoding boomerang... ${pct}%`)
+      })
+      const boomerangFile = new File([boomerangBlob], file.name, { type: boomerangBlob.type })
       setVideoProgress('Extracting poster frame...')
       const poster = await extractPosterFrame(file)
-      setPendingAnimation({ video: file, poster })
-      updateField('coverAnimation', file)
-      updateField('coverAnimationUrl', URL.createObjectURL(file))
+      setPendingAnimation({ video: boomerangFile, poster })
+      updateField('coverAnimation', boomerangFile)
+      updateField('coverAnimationUrl', URL.createObjectURL(boomerangBlob))
     } catch (err) {
       console.error('Video processing failed:', err)
       setError(`Failed to process video: ${err instanceof Error ? err.message : 'Unknown error'}`)
