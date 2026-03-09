@@ -138,6 +138,9 @@ export function ArticleEditor({ existingPost }: ArticleEditorProps) {
         coverImageUrl,
         coverAnimationUrl: coverAnimationUrl || undefined,
         body: form.body,
+        title_fa: form.title_fa || undefined,
+        excerpt_fa: form.excerpt_fa || undefined,
+        body_fa: form.body_fa || undefined,
         published: form.published,
         createdAt: existingPost?.createdAt ?? Timestamp.now(),
         updatedAt: Timestamp.now(),
@@ -289,6 +292,48 @@ export function ArticleEditor({ existingPost }: ArticleEditorProps) {
           )}
         </div>
       </div>
+
+      {/* Persian Translation */}
+      <details className="border border-border rounded">
+        <summary className="px-4 py-3 text-sm font-sans text-muted cursor-pointer hover:text-accent transition-colors select-none">
+          Persian Translation {form.title_fa ? '✓' : ''}
+        </summary>
+        <div className="px-4 pb-4 space-y-4">
+          <div>
+            <label className="block text-xs text-muted font-sans mb-1">Title (Persian)</label>
+            <input
+              type="text"
+              value={form.title_fa}
+              onChange={(e) => updateField('title_fa', e.target.value)}
+              placeholder="عنوان فارسی"
+              dir="rtl"
+              className="w-full px-4 py-3 rounded border border-border bg-surface text-foreground font-sans text-xl input-glow focus:outline-none focus:border-accent"
+            />
+          </div>
+          <div>
+            <label className="block text-xs text-muted font-sans mb-1">Excerpt (Persian)</label>
+            <textarea
+              value={form.excerpt_fa}
+              onChange={(e) => updateField('excerpt_fa', e.target.value)}
+              placeholder="خلاصه فارسی"
+              dir="rtl"
+              rows={2}
+              className="w-full px-4 py-3 rounded border border-border bg-surface text-foreground font-sans input-glow focus:outline-none focus:border-accent resize-none"
+            />
+          </div>
+          <div>
+            <label className="block text-xs text-muted font-sans mb-1">Body (Persian — Markdown)</label>
+            <div data-color-mode="auto" dir="rtl">
+              <MDEditor
+                value={form.body_fa}
+                onChange={(val) => updateField('body_fa', val ?? '')}
+                height={400}
+                preview="live"
+              />
+            </div>
+          </div>
+        </div>
+      </details>
 
       {/* Markdown Editor */}
       <div>
