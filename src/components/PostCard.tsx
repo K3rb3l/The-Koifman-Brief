@@ -4,13 +4,16 @@ import { useRouter } from 'next/navigation'
 import { formatDate, slugToTitle } from '@/lib/utils'
 import { CountUp } from './CountUp'
 import { CoverMedia } from './CoverMedia'
+import { t, postTitle as getPostTitle, postExcerpt as getPostExcerpt } from '@/lib/i18n'
 
 type PostCardProps = {
   slug: string
   title: string
+  title_fa?: string
   date: string
   category: string
   excerpt: string
+  excerpt_fa?: string
   coverImageUrl?: string
   coverAnimationUrl?: string
   briefNumber?: number
@@ -31,7 +34,7 @@ function waitForElement(selector: string): Promise<void> {
   })
 }
 
-export function PostCard({ slug, title, date, category, excerpt, coverImageUrl, coverAnimationUrl, briefNumber, isLatest }: PostCardProps) {
+export function PostCard({ slug, title, title_fa, date, category, excerpt, excerpt_fa, coverImageUrl, coverAnimationUrl, briefNumber, isLatest }: PostCardProps) {
   const router = useRouter()
 
   function handleClick(e: React.MouseEvent<HTMLAnchorElement>) {
@@ -41,6 +44,10 @@ export function PostCard({ slug, title, date, category, excerpt, coverImageUrl, 
       router.push(`/posts/${slug}`)
       return
     }
+
+    // Pause video so the view transition captures a stable frame (avoids mobile flicker)
+    const videoEl = e.currentTarget.querySelector('video')
+    if (videoEl) videoEl.pause()
 
     // Tag this card's cover for shared element morph
     const coverEl = e.currentTarget.querySelector('[data-cover]') as HTMLElement | null
@@ -69,7 +76,7 @@ export function PostCard({ slug, title, date, category, excerpt, coverImageUrl, 
           />
           {briefNumber !== undefined && (
             <span className="text-[10px] font-sans font-medium tracking-[0.3em] uppercase text-muted/60 group-hover:text-accent/70 transition-colors duration-500 ease-out">
-              No. <CountUp target={briefNumber} />
+              {t('post.briefNo')} <CountUp target={briefNumber} />
             </span>
           )}
         </div>
@@ -91,7 +98,7 @@ export function PostCard({ slug, title, date, category, excerpt, coverImageUrl, 
             <CoverMedia
               imageUrl={coverImageUrl}
               animationUrl={coverAnimationUrl}
-              alt={title}
+              alt={getPostTitle({ title, title_fa })}
               className="absolute inset-0 w-full h-full object-cover rounded dark:brightness-[0.85] dark:contrast-[1.1]"
             />
           </div>
@@ -101,11 +108,11 @@ export function PostCard({ slug, title, date, category, excerpt, coverImageUrl, 
           <h2 className={`font-serif font-bold text-foreground leading-tight tracking-tight group-hover:text-accent transition-colors duration-500 ease-out ${
             isLatest ? 'text-2xl sm:text-[1.85rem]' : 'text-xl sm:text-2xl'
           }`}>
-            {title}
+            {getPostTitle({ title, title_fa })}
           </h2>
 
           <p className="mt-3 text-muted/70 font-sans text-[15px] leading-relaxed line-clamp-3 group-hover:text-foreground/60 transition-colors duration-500 ease-out">
-            {excerpt}
+            {getPostExcerpt({ excerpt, excerpt_fa })}
           </p>
         </div>
 
@@ -113,7 +120,7 @@ export function PostCard({ slug, title, date, category, excerpt, coverImageUrl, 
           className="mx-auto inline-flex items-center gap-1 mt-4 text-[13px] font-sans font-medium text-accent opacity-0 group-hover:opacity-100"
           style={{ transition: 'opacity 0.5s cubic-bezier(0.16,1,0.3,1)' }}
         >
-          Read brief
+          {t('post.readBrief')}
           <svg
             width="14" height="14" viewBox="0 0 16 16" fill="none"
             className="translate-x-0 group-hover:translate-x-1.5"

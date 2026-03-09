@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { t } from '@/lib/i18n'
 
 function clearIntroStyles() {
   document.body.style.overflow = ''
@@ -53,7 +54,7 @@ export function LoadingAnimation() {
 
   if (phase === 'done') return null
 
-  const title = 'THE KOIFMAN BRIEF'
+  const title = t('loading.title')
 
   // Golden dust particles — predefined positions to avoid hydration issues
   const particles = [
@@ -268,7 +269,7 @@ export function LoadingAnimation() {
             animation: 'fadeInUp 0.3s ease-out 1.7s forwards',
           }}
         >
-          Clarity in complexity
+          {t('loading.tagline')}
         </p>
       </div>
     </div>

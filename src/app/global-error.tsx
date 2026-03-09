@@ -1,5 +1,7 @@
 'use client'
 
+import { t } from '@/lib/i18n'
+
 export default function GlobalError({
   error,
   reset,
@@ -10,7 +12,7 @@ export default function GlobalError({
   return (
     <html lang="en">
       <body style={{ fontFamily: 'system-ui, sans-serif', padding: '4rem', textAlign: 'center' }}>
-        <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Something went wrong</h2>
+        <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>{t('error.title')}</h2>
         <p style={{ color: '#666', marginBottom: '0.5rem' }}>{error.message}</p>
         <button
           onClick={reset}
@@ -23,7 +25,7 @@ export default function GlobalError({
             cursor: 'pointer',
           }}
         >
-          Try again
+          {t('error.retry')}
         </button>
       </body>
     </html>

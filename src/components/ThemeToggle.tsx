@@ -2,6 +2,7 @@
 
 import { useTheme } from 'next-themes'
 import { useEffect, useState, useCallback } from 'react'
+import { t } from '@/lib/i18n'
 
 export function ThemeToggle() {
   const { resolvedTheme, setTheme } = useTheme()
@@ -27,7 +28,7 @@ export function ThemeToggle() {
     <button
       onClick={handleToggle}
       className="cursor-pointer w-10 h-10 flex items-center justify-center text-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded-sm"
-      aria-label={`Switch to ${isDark ? 'light' : 'dark'} mode`}
+      aria-label={t(isDark ? 'theme.light' : 'theme.dark')}
     >
       <svg
         width="20"
