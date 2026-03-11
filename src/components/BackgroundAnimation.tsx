@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { gsap, useGSAP } from '@/lib/gsap'
 
 type DiamondShape = { type: 'diamond'; x: number; y: number; size: number; dur: number; delay: number; dx: number; dy: number; opacity: number }
 type LineShape = { type: 'line'; x: number; y: number; size: number; dur: number; delay: number; dx: number; dy: number; opacity: number; angle: number }
@@ -47,10 +48,11 @@ const PULL_STRENGTH = 0.15
 const PULL_RADIUS = 350
 
 export function BackgroundAnimation() {
-  const elementsRef = useRef<(SVGSVGElement | null)[]>([])
-  const dustRef = useRef<(HTMLDivElement | null)[]>([])
-  const mouseRef = useRef({ x: -1000, y: -1000 })
-  const rafRef = useRef<number>(0)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const svgRefs = useRef<(SVGSVGElement | null)[]>([])
+  const dustRefs = useRef<(HTMLDivElement | null)[]>([])
+  const quickX = useRef<ReturnType<typeof gsap.quickTo>[]>([])
+  const quickY = useRef<ReturnType<typeof gsap.quickTo>[]>([])
   const [mode, setMode] = useState<'desktop' | 'mobile' | 'none'>('desktop')
 
   useEffect(() => {
@@ -61,80 +63,122 @@ export function BackgroundAnimation() {
     setMode(window.innerWidth < 768 ? 'mobile' : 'desktop')
   }, [])
 
-  // Desktop: cursor-following shapes
-  useEffect(() => {
+  // Ambient drift — replaces CSS geometric-drift keyframe
+  useGSAP(() => {
+    if (mode === 'none') return
+    const container = containerRef.current
+    if (!container) return
+
+    const driftEls = container.querySelectorAll<HTMLElement>('[data-drift]')
+    driftEls.forEach((el, i) => {
+      if (mode === 'mobile') {
+        const d = dust[i]
+        if (!d) return
+        const dx = i % 2 ? 15 : -15
+        const dy = i % 3 ? -10 : 10
+
+        gsap.to(el, {
+          keyframes: [
+            { x: dx, y: dy, duration: d.dur * 0.25 },
+            { x: dx * -0.5, y: dy * 1.2, duration: d.dur * 0.25 },
+            { x: dx * 0.8, y: dy * -0.6, duration: d.dur * 0.25 },
+            { x: 0, y: 0, duration: d.dur * 0.25 },
+          ],
+          ease: 'none',
+          repeat: -1,
+          delay: d.delay,
+        })
+        return
+      }
+
+      const shape = shapes[i]
+      if (!shape) return
+      const dx = shape.dx
+      const dy = shape.dy
+
+      gsap.to(el, {
+        keyframes: [
+          { x: dx, y: dy, duration: shape.dur * 0.25 },
+          { x: dx * -0.5, y: dy * 1.2, duration: shape.dur * 0.25 },
+          { x: dx * 0.8, y: dy * -0.6, duration: shape.dur * 0.25 },
+          { x: 0, y: 0, duration: shape.dur * 0.25 },
+        ],
+        ease: 'none',
+        repeat: -1,
+        delay: shape.delay,
+      })
+    })
+  }, { scope: containerRef, dependencies: [mode] })
+
+  // Desktop: cursor-following with gsap.quickTo
+  useGSAP(() => {
     if (mode !== 'desktop') return
 
+    svgRefs.current.forEach((el, i) => {
+      if (!el) return
+      quickX.current[i] = gsap.quickTo(el, 'x', { duration: 0.6, ease: 'power3.out' })
+      quickY.current[i] = gsap.quickTo(el, 'y', { duration: 0.6, ease: 'power3.out' })
+    })
+
     function handleMouseMove(e: MouseEvent) {
-      mouseRef.current = { x: e.clientX, y: e.clientY + window.scrollY }
-    }
+      const mx = e.clientX
+      const my = e.clientY + window.scrollY
 
-    function animate() {
-      const mx = mouseRef.current.x
-      const my = mouseRef.current.y
-
-      elementsRef.current.forEach((el, i) => {
-        if (!el) return
+      svgRefs.current.forEach((el, i) => {
+        if (!el || !quickX.current[i] || !quickY.current[i]) return
         const shape = shapes[i]
         const bx = (shape.x / 100) * window.innerWidth
         const by = (shape.y / 100) * document.documentElement.scrollHeight
-        const dx = mx - bx
-        const dy = my - by
-        const dist = Math.sqrt(dx * dx + dy * dy)
+        const ddx = mx - bx
+        const ddy = my - by
+        const dist = Math.sqrt(ddx * ddx + ddy * ddy)
 
         if (dist < PULL_RADIUS && mx > 0) {
           const factor = PULL_STRENGTH * (1 - dist / PULL_RADIUS)
-          el.style.transform = `translate(${dx * factor}px, ${dy * factor}px)`
+          quickX.current[i](ddx * factor)
+          quickY.current[i](ddy * factor)
         } else {
-          el.style.transform = ''
+          quickX.current[i](0)
+          quickY.current[i](0)
         }
       })
-      rafRef.current = requestAnimationFrame(animate)
     }
 
     window.addEventListener('mousemove', handleMouseMove)
-    rafRef.current = requestAnimationFrame(animate)
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove)
-      cancelAnimationFrame(rafRef.current)
-    }
-  }, [mode])
+    return () => window.removeEventListener('mousemove', handleMouseMove)
+  }, { dependencies: [mode] })
 
-  // Mobile: scroll-based parallax on dust particles
-  useEffect(() => {
+  // Mobile: scroll parallax on dust
+  useGSAP(() => {
     if (mode !== 'mobile') return
 
-    function handleScroll() {
-      const scrollY = window.scrollY
-      dustRef.current.forEach((el, i) => {
-        if (!el) return
-        const offset = scrollY * dust[i].speed
-        el.style.transform = `translateY(${-offset}px)`
+    dustRefs.current.forEach((el, i) => {
+      if (!el) return
+      gsap.to(el, {
+        y: () => -(window.innerHeight * dust[i].speed),
+        ease: 'none',
+        scrollTrigger: {
+          trigger: document.body,
+          start: 'top top',
+          end: 'bottom bottom',
+          scrub: true,
+        },
       })
-    }
-
-    window.addEventListener('scroll', handleScroll, { passive: true })
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [mode])
+    })
+  }, { dependencies: [mode] })
 
   if (mode === 'none') return null
 
   if (mode === 'mobile') {
     return (
-      <div className="fixed inset-0 z-0 pointer-events-none text-accent opacity-[0.5] dark:opacity-100" aria-hidden="true">
+      <div ref={containerRef} className="fixed inset-0 z-0 pointer-events-none text-accent opacity-[0.5] dark:opacity-100" aria-hidden="true">
         {dust.map((d, i) => (
           <div
             key={i}
-            ref={(el) => { dustRef.current[i] = el }}
-            className="absolute geometric-drift"
-            style={{
-              left: `${d.x}%`,
-              top: `${d.y}%`,
-              ['--drift-x' as string]: `${(i % 2 ? 15 : -15)}px`,
-              ['--drift-y' as string]: `${(i % 3 ? -10 : 10)}px`,
-              animationDuration: `${d.dur}s`,
-              animationDelay: `${d.delay}s`,
-            }}
+            ref={(el) => { dustRefs.current[i] = el }}
+            data-drift
+            className="absolute"
+            style={{ left: `${d.x}%`, top: `${d.y}%` }}
           >
             <svg width={d.r * 4} height={d.r * 4} viewBox={`0 0 ${d.r * 4} ${d.r * 4}`} style={{ opacity: 0.15 + d.speed * 0.3 }}>
               <circle cx={d.r * 2} cy={d.r * 2} r={d.r} fill="currentColor" />
@@ -146,26 +190,17 @@ export function BackgroundAnimation() {
   }
 
   return (
-    <div className="fixed inset-0 z-0 pointer-events-none text-accent dark:opacity-100 opacity-[0.6]" aria-hidden="true">
+    <div ref={containerRef} className="fixed inset-0 z-0 pointer-events-none text-accent dark:opacity-100 opacity-[0.6]" aria-hidden="true">
       {shapes.map((shape, i) => (
         <div
           key={i}
-          className={`absolute geometric-drift ${i >= DIAMOND_COUNT ? 'hidden-mobile' : ''}`}
-          style={{
-            left: `${shape.x}%`,
-            top: `${shape.y}%`,
-            ['--drift-x' as string]: `${shape.dx}px`,
-            ['--drift-y' as string]: `${shape.dy}px`,
-            animationDuration: `${shape.dur}s`,
-            animationDelay: `${shape.delay}s`,
-          }}
+          data-drift
+          className={`absolute ${i >= DIAMOND_COUNT ? 'hidden-mobile' : ''}`}
+          style={{ left: `${shape.x}%`, top: `${shape.y}%` }}
         >
           <svg
-            ref={(el) => { elementsRef.current[i] = el }}
-            style={{
-              opacity: shape.opacity,
-              transition: 'transform 0.6s ease-out',
-            }}
+            ref={(el) => { svgRefs.current[i] = el }}
+            style={{ opacity: shape.opacity }}
             width={shape.size}
             height={shape.type === 'diamond' ? shape.size : 4}
             viewBox={shape.type === 'diamond' ? `0 0 ${shape.size} ${shape.size}` : `0 0 ${shape.size} 4`}
@@ -188,7 +223,7 @@ export function BackgroundAnimation() {
                 y2="2"
                 stroke="currentColor"
                 strokeWidth="1.5"
-                transform={`rotate(${shape.type === 'line' ? shape.angle : 0} ${shape.size / 2} 2)`}
+                transform={`rotate(${shape.angle} ${shape.size / 2} 2)`}
               />
             )}
           </svg>
