@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { getPublishedPosts, getCachedPublishedPosts } from '@/lib/posts'
 import { PostCard } from '@/components/PostCard'
@@ -10,6 +10,7 @@ import { CursorSpotlight } from '@/components/CursorSpotlight'
 import { AnimatedPortrait } from '@/components/AnimatedPortrait'
 import { PostCardSkeleton } from '@/components/PostCardSkeleton'
 import { prefetchVideos } from '@/lib/video-cache'
+import { gsap, ScrollTrigger, useGSAP, EASE_REVEAL, DURATION_REVEAL } from '@/lib/gsap'
 import { t } from '@/lib/i18n'
 import type { Post } from '@/types/post'
 
@@ -33,6 +34,7 @@ function preloadCoverImages(posts: Post[]): Promise<void> {
 }
 
 export function HomeContent() {
+  const heroRef = useRef<HTMLElement>(null)
   const [posts, setPosts] = useState<Post[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -74,6 +76,31 @@ export function HomeContent() {
     if (videoUrls.length > 0) prefetchVideos(videoUrls)
   }, [page, posts.length])
 
+  // Hero fade-in + parallax
+  useGSAP(() => {
+    const el = heroRef.current
+    if (!el) return
+    gsap.from(el, { y: 20, opacity: 0, duration: DURATION_REVEAL, ease: EASE_REVEAL })
+    gsap.to(el, {
+      y: -40,
+      ease: 'none',
+      scrollTrigger: { trigger: el, start: 'top top', end: 'bottom top', scrub: true },
+    })
+  }, { scope: heroRef })
+
+  // Batch card reveal
+  useGSAP(() => {
+    const cards = document.querySelectorAll('[data-post-card]')
+    if (!cards.length) return
+    ScrollTrigger.batch(cards, {
+      onEnter: (batch) => {
+        gsap.from(batch, { y: 30, opacity: 0, duration: 0.5, ease: EASE_REVEAL, stagger: 0.08 })
+      },
+      start: 'top bottom-=60px',
+      once: true,
+    })
+  })
+
   function goToPage(nextPage: number) {
     setPageLoading(true)
     setPage(nextPage)
@@ -85,10 +112,10 @@ export function HomeContent() {
 
   return (
     <div>
-      <section className="animate-fade-in-up mb-16 flex flex-col items-center text-center">
+      <section ref={heroRef} className="mb-16 flex flex-col items-center text-center">
         <Link href="/about" className="mb-5 group">
           <AnimatedPortrait
-            className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover portrait-ring group-hover:ring-accent/50 transition-all duration-300"
+            className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover group-hover:ring-accent/50 transition-all duration-300"
           />
         </Link>
         <p className="text-[11px] font-sans font-medium tracking-[0.3em] uppercase text-muted mb-3">

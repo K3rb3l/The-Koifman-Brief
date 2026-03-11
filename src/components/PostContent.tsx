@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
@@ -13,6 +13,7 @@ import { SubscribeForm } from '@/components/SubscribeForm'
 import { ReadingProgress } from '@/components/ReadingProgress'
 import { CountUp } from '@/components/CountUp'
 import { CoverMedia } from '@/components/CoverMedia'
+import { gsap, useGSAP, EASE_REVEAL } from '@/lib/gsap'
 import { t, postTitle, postBody } from '@/lib/i18n'
 import type { Post } from '@/types/post'
 
@@ -101,6 +102,25 @@ export function PostContent() {
     : null
 
   const readingTime = estimateReadingTime(post.body)
+  const headerRef = useRef<HTMLElement>(null)
+
+  // Header stagger reveal
+  useGSAP(() => {
+    const el = headerRef.current
+    if (!el) return
+    const items = el.querySelectorAll('[data-reveal]')
+    gsap.from(items, { y: 20, opacity: 0, duration: 0.4, ease: EASE_REVEAL, stagger: 0.1 })
+  }, { scope: headerRef })
+
+  // Cover zoom-out on scroll
+  useGSAP(() => {
+    const cover = document.querySelector('[data-article-cover]') as HTMLElement
+    if (!cover) return
+    gsap.fromTo(cover,
+      { scale: 1.05 },
+      { scale: 1, ease: 'none', scrollTrigger: { trigger: cover, start: 'top bottom', end: 'bottom top', scrub: true } },
+    )
+  })
 
   return (
     <>
@@ -120,8 +140,8 @@ export function PostContent() {
         }}
       />
       <article>
-        <header className="mb-10 text-center" style={{ viewTransitionName: 'article-header' }}>
-          <div className="animate-fade-in-up flex items-center justify-center gap-3 mb-5">
+        <header ref={headerRef} className="mb-10 text-center" style={{ viewTransitionName: 'article-header' }}>
+          <div data-reveal className="flex items-center justify-center gap-3 mb-5">
             <span className="text-[10px] font-sans font-medium tracking-[0.3em] uppercase text-muted">
               {t('post.briefNo')} <CountUp target={briefNumber} />
             </span>
@@ -130,10 +150,10 @@ export function PostContent() {
               {slugToTitle(post.category)}
             </span>
           </div>
-          <h1 className="animate-fade-in-up-delay-1 font-serif text-3xl md:text-4xl font-bold tracking-tight text-foreground leading-tight max-w-2xl mx-auto">
+          <h1 data-reveal className="font-serif text-3xl md:text-4xl font-bold tracking-tight text-foreground leading-tight max-w-2xl mx-auto">
             {postTitle(post)}
           </h1>
-          <div className="animate-fade-in-up-delay-2 flex items-center justify-center gap-3 mt-5 text-[13px] text-muted font-sans">
+          <div data-reveal className="flex items-center justify-center gap-3 mt-5 text-[13px] text-muted font-sans">
             <a href="/about" className="hover:text-accent transition-colors duration-200">{t('post.byline')}</a>
             <span>-</span>
             <time>{formatDate(post.date)}</time>
