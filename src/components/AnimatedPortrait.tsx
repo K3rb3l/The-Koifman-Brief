@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
+import { gsap, useGSAP } from '@/lib/gsap'
 
 const VIDEO_URL =
   'https://firebasestorage.googleapis.com/v0/b/the-koifman-brief.firebasestorage.app/o/images%2Fportrait.mp4?alt=media'
@@ -12,13 +13,13 @@ export function AnimatedPortrait({ className }: { className?: string }) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const [loaded, setLoaded] = useState(false)
 
-  useEffect(() => {
+  useGSAP(() => {
     const video = videoRef.current
     if (!video) return
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
 
     function handleCanPlay() {
       setLoaded(true)
+      gsap.to(video, { opacity: 1, duration: 0.8, ease: 'power2.inOut' })
       video!.play().catch(() => {})
     }
 
@@ -28,7 +29,7 @@ export function AnimatedPortrait({ className }: { className?: string }) {
     return () => {
       video.removeEventListener('canplay', handleCanPlay)
     }
-  }, [])
+  })
 
   return (
     <div className={className} style={{ overflow: 'hidden', position: 'relative' }}>
@@ -52,7 +53,6 @@ export function AnimatedPortrait({ className }: { className?: string }) {
           height: '100%',
           objectFit: 'cover',
           opacity: loaded ? 1 : 0,
-          transition: 'opacity 800ms ease-in-out',
         }}
       />
     </div>
