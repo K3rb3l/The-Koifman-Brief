@@ -6,7 +6,7 @@ Replace all CSS `@keyframes` animations and IntersectionObserver-based scroll tr
 
 ## Stack Changes
 
-- **Add**: `gsap`, `@gsap/react`
+- **Add**: `gsap`, `@gsap/react` (verify React 19 compatibility before install)
 - **Remove**: No packages removed (no animation libraries currently)
 - **CSS**: Remove replaced `@keyframes` from `globals.css`; keep hover transitions and View Transition rules
 
@@ -27,13 +27,13 @@ Each component replaces `useEffect` + IntersectionObserver / `useState` phase lo
 
 | Component | Current Mechanism | GSAP Replacement |
 |---|---|---|
-| **ScrollReveal** | IntersectionObserver + CSS `.animate-fade-in-up` class | `gsap.from(el, { y: 24, opacity: 0, scrollTrigger })` |
-| **CountUp** | IntersectionObserver + rAF counter | `gsap.to(ref, { innerText: target, snap: { innerText: 1 }, scrollTrigger })` or `gsap.to` with `onUpdate` |
+| **ScrollReveal** | IntersectionObserver + inline style (opacity/translateY) | `gsap.from(el, { y: 24, opacity: 0, scrollTrigger })` |
+| **CountUp** | IntersectionObserver + rAF counter + locale formatting (Persian numerals) | `gsap.to` with `onUpdate` callback using `toLocaleString` formatter |
 | **DecorativeRule** | IntersectionObserver + CSS classes | ScrollTrigger timeline: rule scaleX → diamond spinIn |
-| **StaggeredBullet** | IntersectionObserver + nth-child CSS delays | `gsap.from(items, { y: 16, opacity: 0, stagger: 0.08, scrollTrigger })` |
-| **PencilSketchImage** | `reveal` prop + CSS `clip-path` class | `gsap.fromTo(el, { clipPath: 'inset(0 0 0 100%)' }, { clipPath: 'inset(0)', scrollTrigger })` |
-| **BackgroundAnimation** | rAF loop + mousemove/scroll listeners | `gsap.quickTo` for cursor tracking, ScrollTrigger for mobile parallax |
-| **LoadingAnimation** | useState phases + CSS keyframes | GSAP timeline: diamond scale → particles float → curtain split → fade out |
+| **StaggeredBullet** | IntersectionObserver + inline style (translateX + stagger delay) | `gsap.from(items, { x: 8, opacity: 0, stagger: 0.12, scrollTrigger })` |
+| **PencilSketchImage** | `reveal` prop + inline style clip-path | `gsap.fromTo(el, { clipPath: 'inset(0 0 0 100%)' }, { clipPath: 'inset(0)', scrollTrigger })` |
+| **BackgroundAnimation** | CSS `geometric-drift` keyframe (ambient) + rAF (cursor/scroll) | `gsap.to` with yoyo/repeat for ambient drift + `gsap.quickTo` for cursor + ScrollTrigger for mobile parallax |
+| **LoadingAnimation** | `shouldAnimate()` gate (1hr cooldown) + useState phases + CSS keyframes | Same `shouldAnimate()` gate; GSAP timeline: diamond scale → particles float → curtain split → fade out |
 | **BrandMark** | setTimeout chains + CSS keyframes | GSAP timeline: stroke draw (strokeDashoffset) → loop breathe animation |
 | **AnimatedPortrait** | Video onCanPlay + opacity transition | `gsap.to(video, { opacity: 1, duration: 0.8 })` on canplay |
 | **PostCard** | CSS transitions + View Transition | Keep CSS hover transitions. Keep View Transition. No GSAP needed. |
