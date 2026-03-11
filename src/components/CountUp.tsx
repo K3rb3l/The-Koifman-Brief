@@ -1,6 +1,8 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useRef } from 'react'
+import { gsap, useGSAP } from '@/lib/gsap'
+import { isRTL } from '@/lib/i18n'
 
 type CountUpProps = {
   target: number
@@ -10,58 +12,37 @@ type CountUpProps = {
 }
 
 export function CountUp({ target, className = '', prefix = '', pad = 3 }: CountUpProps) {
-  const ref = useRef<HTMLSpanElement>(null)
-  const [count, setCount] = useState(0)
-  const [started, setStarted] = useState(false)
-  const startedRef = useRef(false)
+  const spanRef = useRef<HTMLSpanElement>(null)
 
-  useEffect(() => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      setCount(target)
-      setStarted(true)
-      startedRef.current = true
-      return
+  useGSAP(() => {
+    const el = spanRef.current
+    if (!el) return
+
+    const obj = { value: 0 }
+
+    function format(n: number): string {
+      const rounded = Math.round(n)
+      return isRTL
+        ? rounded.toLocaleString('fa-IR', { minimumIntegerDigits: pad })
+        : String(rounded).padStart(pad, '0')
     }
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && !startedRef.current) {
-          startedRef.current = true
-          setStarted(true)
-          observer.unobserve(entry.target)
-        }
+    el.textContent = prefix + format(0)
+
+    gsap.to(obj, {
+      value: target,
+      duration: 0.8,
+      ease: 'power3.out',
+      scrollTrigger: {
+        trigger: el,
+        start: 'top bottom-=50%',
+        once: true,
       },
-      { threshold: 0.5 }
-    )
+      onUpdate() {
+        el.textContent = prefix + format(obj.value)
+      },
+    })
+  }, { scope: spanRef })
 
-    if (ref.current) observer.observe(ref.current)
-    return () => observer.disconnect()
-  }, [target])
-
-  useEffect(() => {
-    if (!started) return
-
-    const duration = 800
-    const steps = Math.min(target, 30)
-    const stepTime = duration / steps
-    let current = 0
-
-    const interval = setInterval(() => {
-      current++
-      const eased = 1 - Math.pow(1 - current / steps, 3)
-      setCount(Math.round(eased * target))
-      if (current >= steps) {
-        setCount(target)
-        clearInterval(interval)
-      }
-    }, stepTime)
-
-    return () => clearInterval(interval)
-  }, [started, target])
-
-  return (
-    <span ref={ref} className={className}>
-      {prefix}{String(count).padStart(pad, '0')}
-    </span>
-  )
+  return <span ref={spanRef} className={className} />
 }

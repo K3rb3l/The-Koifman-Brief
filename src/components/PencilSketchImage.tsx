@@ -1,4 +1,8 @@
+'use client'
+
 import Image from 'next/image'
+import { useRef } from 'react'
+import { gsap, useGSAP } from '@/lib/gsap'
 
 type PencilSketchImageProps = {
   src: string
@@ -7,6 +11,7 @@ type PencilSketchImageProps = {
   height: number
   className?: string
   priority?: boolean
+  reveal?: boolean
 }
 
 export function PencilSketchImage({
@@ -16,65 +21,57 @@ export function PencilSketchImage({
   height,
   className = '',
   priority,
+  reveal,
 }: PencilSketchImageProps) {
+  const wrapperRef = useRef<HTMLDivElement>(null)
+
+  useGSAP(() => {
+    if (!reveal) return
+    const el = wrapperRef.current
+    if (!el) return
+
+    gsap.fromTo(el,
+      { clipPath: 'inset(0 100% 0 0)' },
+      {
+        clipPath: 'inset(0 0% 0 0)',
+        duration: 0.8,
+        delay: 0.2,
+        ease: 'power4.out',
+      },
+    )
+  }, { scope: wrapperRef, dependencies: [reveal] })
+
   return (
-    <div className={`relative inline-block ${className}`}>
-      {/* SVG filters for pencil/pen illustration effect */}
+    <div
+      ref={wrapperRef}
+      className={`relative inline-block ${className}`}
+      style={reveal ? { clipPath: 'inset(0 100% 0 0)' } : undefined}
+    >
       <svg className="absolute w-0 h-0" aria-hidden="true">
         <defs>
-          {/* Light mode filter */}
           <filter id="pencil-sketch">
-            {/* Desaturate slightly — warm editorial tone */}
-            <feColorMatrix
-              type="saturate"
-              values="0.15"
-              result="gray"
-            />
-            {/* Gentle contrast boost */}
+            <feColorMatrix type="saturate" values="0.15" result="gray" />
             <feComponentTransfer in="gray" result="contrast">
               <feFuncR type="linear" slope="1.2" intercept="-0.05" />
               <feFuncG type="linear" slope="1.2" intercept="-0.05" />
               <feFuncB type="linear" slope="1.2" intercept="-0.05" />
             </feComponentTransfer>
-            {/* Subtle edge emphasis */}
-            <feConvolveMatrix
-              in="contrast"
-              order="3"
-              kernelMatrix="0 -0.5 0 -0.5 3 -0.5 0 -0.5 0"
-              result="edges"
-            />
-            {/* Slight softness — hand-drawn feel */}
+            <feConvolveMatrix in="contrast" order="3" kernelMatrix="0 -0.5 0 -0.5 3 -0.5 0 -0.5 0" result="edges" />
             <feGaussianBlur in="edges" stdDeviation="0.3" />
           </filter>
-
-          {/* Dark mode filter — brighter output */}
           <filter id="pencil-sketch-dark">
-            {/* Grayscale */}
-            <feColorMatrix
-              type="saturate"
-              values="0"
-              result="gray"
-            />
-            {/* Higher brightness for dark backgrounds */}
+            <feColorMatrix type="saturate" values="0" result="gray" />
             <feComponentTransfer in="gray" result="contrast">
               <feFuncR type="linear" slope="1.6" intercept="0.0" />
               <feFuncG type="linear" slope="1.6" intercept="0.0" />
               <feFuncB type="linear" slope="1.6" intercept="0.0" />
             </feComponentTransfer>
-            {/* Edge emphasis */}
-            <feConvolveMatrix
-              in="contrast"
-              order="3"
-              kernelMatrix="0 -1 0 -1 5 -1 0 -1 0"
-              result="edges"
-            />
-            {/* Slight softness */}
+            <feConvolveMatrix in="contrast" order="3" kernelMatrix="0 -1 0 -1 5 -1 0 -1 0" result="edges" />
             <feGaussianBlur in="edges" stdDeviation="0.4" />
           </filter>
         </defs>
       </svg>
 
-      {/* Light mode image */}
       <Image
         src={src}
         alt={alt}
@@ -84,7 +81,6 @@ export function PencilSketchImage({
         style={{ filter: 'url(#pencil-sketch)', transition: 'opacity 0.3s ease-in-out' }}
         priority={priority}
       />
-      {/* Dark mode image */}
       <Image
         src={src}
         alt={alt}
