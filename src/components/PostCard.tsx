@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation'
 import { formatDate, slugToTitle } from '@/lib/utils'
 import { CountUp } from './CountUp'
 import { CoverMedia } from './CoverMedia'
-import { t, postTitle as getPostTitle, postExcerpt as getPostExcerpt } from '@/lib/i18n'
+import { t, postTitle as getPostTitle, postExcerpt as getPostExcerpt, isRTL } from '@/lib/i18n'
 
 type PostCardProps = {
   slug: string
@@ -62,7 +62,7 @@ export function PostCard({ slug, title, title_fa, date, category, excerpt, excer
   }
 
   return (
-    <article className="group">
+    <article data-post-card className="group">
       <a
         href={`/posts/${slug}`}
         onClick={handleClick}
@@ -123,10 +123,10 @@ export function PostCard({ slug, title, title_fa, date, category, excerpt, excer
           {t('post.readBrief')}
           <svg
             width="14" height="14" viewBox="0 0 16 16" fill="none"
-            className="translate-x-0 group-hover:translate-x-1.5"
+            className={isRTL ? 'translate-x-0 group-hover:-translate-x-1.5' : 'translate-x-0 group-hover:translate-x-1.5'}
             style={{ transition: 'transform 0.5s cubic-bezier(0.16,1,0.3,1) 0.05s' }}
           >
-            <path d="M6 3l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d={isRTL ? 'M10 3l-5 5 5 5' : 'M6 3l5 5-5 5'} stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </span>
       </a>
