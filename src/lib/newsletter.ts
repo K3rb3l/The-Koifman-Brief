@@ -33,12 +33,16 @@ export type NewsletterDraft = {
 }
 
 export async function getDrafts(): Promise<NewsletterDraft[]> {
-  const q = query(
-    collection(db, 'newsletterDrafts'),
-    orderBy('createdAt', 'desc'),
-  )
-  const snap = await getDocs(q)
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() }) as NewsletterDraft)
+  try {
+    const q = query(
+      collection(db, 'newsletterDrafts'),
+      orderBy('createdAt', 'desc'),
+    )
+    const snap = await getDocs(q)
+    return snap.docs.map((d) => ({ id: d.id, ...d.data() }) as NewsletterDraft)
+  } catch {
+    return []
+  }
 }
 
 // Update draft (edit title/excerpt before sending)

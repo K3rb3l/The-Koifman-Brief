@@ -3,29 +3,17 @@
     "source": "functions",
     "runtime": "nodejs22"
   },
-  "hosting": [
-    {
-      "site": "the-koifman-brief",
-      "public": "out",
-      "cleanUrls": true,
-      "ignore": ["fa/**"],
-      "rewrites": [
-        { "source": "/admin/**", "destination": "/admin.html" },
-        { "source": "/posts/**", "destination": "/posts.html" },
-        { "source": "/unsubscribe", "function": "unsubscribe" },
-        { "source": "**", "destination": "/404.html" }
-      ]
-    },
-    {
-      "site": "the-koifman-brief-fa",
-      "public": "out/fa",
-      "cleanUrls": true,
-      "rewrites": [
-        { "source": "/posts/**", "destination": "/posts.html" },
-        { "source": "**", "destination": "/404.html" }
-      ]
-    }
-  ],
+  "hosting": {
+    "site": "the-koifman-brief",
+    "public": "out",
+    "cleanUrls": true,
+    "rewrites": [
+      { "source": "/admin/**", "destination": "/admin.html" },
+      { "source": "/posts/**", "destination": "/posts.html" },
+      { "source": "/unsubscribe", "function": "unsubscribe" },
+      { "source": "**", "destination": "/404.html" }
+    ]
+  },
   "firestore": {
     "rules": "firestore.rules",
     "indexes": "firestore.indexes.json"

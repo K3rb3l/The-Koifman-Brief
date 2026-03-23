@@ -14,7 +14,6 @@ import { ReadingProgress } from '@/components/ReadingProgress'
 import { CountUp } from '@/components/CountUp'
 import { CoverMedia } from '@/components/CoverMedia'
 import { gsap, useGSAP, EASE_REVEAL } from '@/lib/gsap'
-import { t, postTitle, postBody } from '@/lib/i18n'
 import type { Post } from '@/types/post'
 
 export function PostContent() {
@@ -85,8 +84,8 @@ export function PostContent() {
   if (notFound || !post) {
     return (
       <div className="text-center py-24">
-        <h2 className="font-serif text-2xl font-bold text-foreground mb-2">{t('post.notFound.title')}</h2>
-        <p className="text-muted font-sans">{t('post.notFound.body')}</p>
+        <h2 className="font-serif text-2xl font-bold text-foreground mb-2">Brief not found</h2>
+        <p className="text-muted font-sans">This brief doesn&apos;t exist or has been removed.</p>
       </div>
     )
   }
@@ -95,10 +94,10 @@ export function PostContent() {
   const briefNumber = allPosts.length - currentIndex
 
   const previous = currentIndex < allPosts.length - 1
-    ? { slug: allPosts[currentIndex + 1].slug, title: allPosts[currentIndex + 1].title, title_fa: allPosts[currentIndex + 1].title_fa, coverImageUrl: allPosts[currentIndex + 1].coverImageUrl, coverAnimationUrl: allPosts[currentIndex + 1].coverAnimationUrl }
+    ? { slug: allPosts[currentIndex + 1].slug, title: allPosts[currentIndex + 1].title, coverImageUrl: allPosts[currentIndex + 1].coverImageUrl, coverAnimationUrl: allPosts[currentIndex + 1].coverAnimationUrl }
     : null
   const next = currentIndex > 0
-    ? { slug: allPosts[currentIndex - 1].slug, title: allPosts[currentIndex - 1].title, title_fa: allPosts[currentIndex - 1].title_fa, coverImageUrl: allPosts[currentIndex - 1].coverImageUrl, coverAnimationUrl: allPosts[currentIndex - 1].coverAnimationUrl }
+    ? { slug: allPosts[currentIndex - 1].slug, title: allPosts[currentIndex - 1].title, coverImageUrl: allPosts[currentIndex - 1].coverImageUrl, coverAnimationUrl: allPosts[currentIndex - 1].coverAnimationUrl }
     : null
 
   const readingTime = estimateReadingTime(post.body)
@@ -143,7 +142,7 @@ export function PostContent() {
         <header ref={headerRef} className="mb-10 text-center" style={{ viewTransitionName: 'article-header' }}>
           <div data-reveal className="flex items-center justify-center gap-3 mb-5">
             <span className="text-[10px] font-sans font-medium tracking-[0.3em] uppercase text-muted">
-              {t('post.briefNo')} <CountUp target={briefNumber} />
+              No. <CountUp target={briefNumber} />
             </span>
             <span className="w-[3px] h-[3px] bg-border rounded-full" />
             <span className="text-[11px] font-sans font-semibold uppercase tracking-[0.18em] text-accent">
@@ -151,10 +150,10 @@ export function PostContent() {
             </span>
           </div>
           <h1 data-reveal className="font-serif text-3xl md:text-4xl font-bold tracking-tight text-foreground leading-tight max-w-2xl mx-auto">
-            {postTitle(post)}
+            {post.title}
           </h1>
           <div data-reveal className="flex items-center justify-center gap-3 mt-5 text-[13px] text-muted font-sans">
-            <a href="/about" className="hover:text-accent transition-colors duration-200">{t('post.byline')}</a>
+            <a href="/about" className="hover:text-accent transition-colors duration-200">By Shahar Koifman</a>
             <span>-</span>
             <time>{formatDate(post.date)}</time>
             <span>-</span>
@@ -167,7 +166,7 @@ export function PostContent() {
             <CoverMedia
               imageUrl={post.coverImageUrl}
               animationUrl={post.coverAnimationUrl}
-              alt={postTitle(post)}
+              alt={post.title}
               className="absolute inset-0 w-full h-full object-cover rounded-lg dark:brightness-[0.85] dark:contrast-[1.1]"
             />
           </div>
@@ -177,10 +176,10 @@ export function PostContent() {
           <div className="decorative-rule"><span className="diamond" /></div>
 
           <div className="prose prose-lg max-w-none dark:prose-invert drop-cap">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>{postBody(post)}</ReactMarkdown>
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>{post.body}</ReactMarkdown>
           </div>
 
-          <ShareLinks title={postTitle(post)} slug={slug} />
+          <ShareLinks title={post.title} slug={slug} />
           <AuthorCard />
           <PostNavigation previous={previous} next={next} />
           <SubscribeForm />

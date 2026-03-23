@@ -11,7 +11,6 @@ import { AnimatedPortrait } from '@/components/AnimatedPortrait'
 import { PostCardSkeleton } from '@/components/PostCardSkeleton'
 import { prefetchVideos } from '@/lib/video-cache'
 import { gsap, ScrollTrigger, useGSAP, EASE_REVEAL, DURATION_REVEAL } from '@/lib/gsap'
-import { t } from '@/lib/i18n'
 import type { Post } from '@/types/post'
 
 const POSTS_PER_PAGE = 3
@@ -119,13 +118,13 @@ export function HomeContent() {
           />
         </Link>
         <p className="text-[11px] font-sans font-medium tracking-[0.3em] uppercase text-muted mb-3">
-          {t('brand.tagline')}
+          Clarity in complexity
         </p>
         <p className="text-[11px] font-sans font-medium tracking-[0.2em] uppercase text-muted mb-4">
-          <Link href="/about" className="text-accent hover:text-link-hover transition-colors duration-200 cursor-pointer">{t('home.byline')}</Link>
+          <Link href="/about" className="text-accent hover:text-link-hover transition-colors duration-200 cursor-pointer">by Shahar Koifman</Link>
         </p>
         <h2 className="font-serif text-lg sm:text-xl text-muted leading-relaxed max-w-md mx-auto">
-          {t('home.subtitle')}
+          Geopolitics, FinTech, and real estate — tracing the macro forces that create structural shifts.
         </h2>
       </section>
 
@@ -142,11 +141,9 @@ export function HomeContent() {
                   key={post.slug}
                   slug={post.slug}
                   title={post.title}
-                  title_fa={post.title_fa}
                   date={post.date}
                   category={post.category}
                   excerpt={post.excerpt}
-                  excerpt_fa={post.excerpt_fa}
                   coverImageUrl={post.coverImageUrl}
                   coverAnimationUrl={post.coverAnimationUrl}
                   briefNumber={totalBriefs - ((page - 1) * POSTS_PER_PAGE + i)}
@@ -163,7 +160,7 @@ export function HomeContent() {
                 disabled={page === 1}
                 className="px-3 py-1.5 text-sm font-sans text-muted hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
               >
-                {t('home.prev')}
+                Prev
               </button>
               {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
                 <button
@@ -183,13 +180,13 @@ export function HomeContent() {
                 disabled={page === totalPages}
                 className="px-3 py-1.5 text-sm font-sans text-muted hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
               >
-                {t('home.next')}
+                Next
               </button>
             </nav>
           )}
         </>
       ) : (
-        <p className="text-muted font-sans text-center">{t('home.empty')}</p>
+        <p className="text-muted font-sans text-center">No briefs yet. Check back soon.</p>
       )}
 
       <ScrollReveal>

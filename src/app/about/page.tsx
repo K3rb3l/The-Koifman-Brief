@@ -1,5 +1,4 @@
 import type { Metadata } from 'next'
-import { t } from '@/lib/i18n'
 import { SubscribeForm } from '@/components/SubscribeForm'
 import { ScrollReveal } from '@/components/ScrollReveal'
 import { PencilSketchImage } from '@/components/PencilSketchImage'
@@ -7,8 +6,8 @@ import { DecorativeRule } from '@/components/DecorativeRule'
 import { StaggeredBullet } from '@/components/StaggeredBullet'
 
 export const metadata: Metadata = {
-  title: t('about.title'),
-  description: t('about.description'),
+  title: 'About',
+  description: 'About Shahar Koifman and The Koifman Brief.',
 }
 
 export default function AboutPage() {
@@ -27,13 +26,13 @@ export default function AboutPage() {
           />
           <div>
             <h1 className="font-serif text-3xl font-bold text-foreground mb-4">
-              {t('about.name')}
+              Shahar Koifman
             </h1>
             <p className="text-muted font-sans leading-relaxed mb-3">
-              {t('about.bio1')}
+              Shahar Koifman spent over 20 years in Israeli Defense Intelligence, retiring as Lt. Col. from the Research &amp; Analysis Division. He went on to lead investment research in the private sector, covering financial technology and commercial real estate.
             </p>
             <p className="text-muted font-sans leading-relaxed">
-              {t('about.bio2')}
+              The Koifman Brief draws on both worlds: the analytical rigor of intelligence work applied to the macro forces and structural shifts that shape geopolitics, markets, and capital flows.
             </p>
           </div>
         </div>
@@ -44,25 +43,25 @@ export default function AboutPage() {
       <ScrollReveal delay={0.1}>
         <section className="mb-12">
           <h2 className="font-serif text-2xl font-semibold text-foreground mb-4">
-            {t('about.whatIWrite')}
+            What I Write About
           </h2>
           <div className="space-y-4 text-foreground font-sans leading-relaxed">
             <p>
-              {t('about.intro')}
+              The Koifman Brief sits at the intersection of three domains that look disparate on the surface but share a common analytical thread.
             </p>
             <div className="space-y-5">
               <StaggeredBullet index={0}>
-                <span className="font-semibold text-accent">{t('about.geo.label')}</span> {t('about.geo.desc')}
+                <span className="font-semibold text-accent">Geopolitics:</span> The operating environment that shapes everything else. Policy shifts, sanctions regimes, and regional dynamics that create structural risks and opportunities.
               </StaggeredBullet>
               <StaggeredBullet index={1}>
-                <span className="font-semibold text-accent">{t('about.fintech.label')}</span> {t('about.fintech.desc')}
+                <span className="font-semibold text-accent">FinTech:</span> Where regulatory frameworks meet technological disruption. Payments, digital assets, and the infrastructure that moves capital.
               </StaggeredBullet>
               <StaggeredBullet index={2}>
-                <span className="font-semibold text-accent">{t('about.realestate.label')}</span> {t('about.realestate.desc')}
+                <span className="font-semibold text-accent">Real Estate:</span> Where macro forces become tangible. Interest rates, demographic shifts, and policy changes manifest in physical assets and capital flows.
               </StaggeredBullet>
             </div>
             <p>
-              {t('about.conclusion')}
+              Each piece traces implications beyond the obvious first-order effects. The goal is not prediction but clarity: understanding the forces at work well enough to make better decisions.
             </p>
           </div>
         </section>
@@ -71,7 +70,7 @@ export default function AboutPage() {
       <ScrollReveal delay={0.15}>
         <section className="mb-12">
           <h2 className="font-serif text-2xl font-semibold text-foreground mb-4">
-            {t('about.connect')}
+            Connect
           </h2>
           <div className="flex gap-6 font-sans text-sm">
             <a
@@ -80,13 +79,13 @@ export default function AboutPage() {
               rel="noopener noreferrer"
               className="text-accent hover:text-link-hover transition-colors duration-200 cursor-pointer"
             >
-              {t('about.linkedin')}
+              LinkedIn
             </a>
             <a
               href="mailto:shahar@koifmanbrief.com"
               className="text-accent hover:text-link-hover transition-colors duration-200 cursor-pointer"
             >
-              {t('about.email')}
+              Email
             </a>
           </div>
         </section>

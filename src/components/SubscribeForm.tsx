@@ -2,7 +2,6 @@
 
 import { useState, type FormEvent } from 'react'
 import { Loader2, AlertCircle, Check } from 'lucide-react'
-import { t } from '@/lib/i18n'
 import { subscribeEmail } from '@/lib/newsletter'
 
 export function SubscribeForm() {
@@ -40,19 +39,19 @@ export function SubscribeForm() {
               }}
             />
             <p className="font-serif text-lg text-foreground">
-              {t('subscribe.success')}
+              You&apos;re subscribed. Check your email to confirm.
             </p>
           </div>
         ) : (
           <>
             <p className="text-[10px] font-sans font-medium tracking-[0.3em] uppercase text-muted mb-3">
-              {t('subscribe.label')}
+              Newsletter
             </p>
             <p className="font-serif text-2xl text-foreground mb-2">
-              {t('subscribe.heading')}
+              Get the next brief
             </p>
             <p className="text-sm text-muted font-sans mb-8">
-              {t('subscribe.description')}
+              Concise analysis on macro forces and structural shifts. No spam.
             </p>
             <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3">
               <input
@@ -60,9 +59,9 @@ export function SubscribeForm() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder={t('subscribe.placeholder')}
+                placeholder="your@email.com"
                 className="flex-1 px-4 py-3 border border-border bg-background text-foreground font-sans text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors duration-200 input-glow"
-                aria-label={t('subscribe.placeholder')}
+                aria-label="your@email.com"
               />
               <button
                 type="submit"
@@ -72,10 +71,10 @@ export function SubscribeForm() {
                 {status === 'loading' ? (
                   <>
                     <Loader2 size={14} className="animate-spin" />
-                    <span>{t('subscribe.loading')}</span>
+                    <span>Subscribing</span>
                   </>
                 ) : (
-                  t('subscribe.button')
+                  'Subscribe'
                 )}
               </button>
             </form>
@@ -83,7 +82,7 @@ export function SubscribeForm() {
               <div className="mt-3 flex items-center justify-center gap-2 text-sm font-sans">
                 <AlertCircle size={14} className="text-red-600 dark:text-red-400" />
                 <p className="text-red-600 dark:text-red-400">
-                  {t('subscribe.error')}
+                  Something went wrong. Please try again.
                 </p>
               </div>
             )}

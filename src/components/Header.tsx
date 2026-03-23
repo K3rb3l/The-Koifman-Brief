@@ -2,10 +2,8 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { t } from '@/lib/i18n'
 import { ThemeToggle } from './ThemeToggle'
 import { BrandMark } from './BrandMark'
-import { LanguageToggle } from '@/components/LanguageToggle'
 
 export function Header() {
   const pathname = usePathname()
@@ -29,7 +27,7 @@ export function Header() {
           >
             <BrandMark />
             <h1 className="font-serif text-xs sm:text-base md:text-lg font-bold tracking-tight text-foreground uppercase whitespace-nowrap hidden sm:block" style={{ letterSpacing: '0.08em' }}>
-              {t('brand.name')}
+              The Koifman Brief
             </h1>
           </Link>
           <div className="flex items-center gap-1 sm:gap-4 shrink-0">
@@ -39,17 +37,16 @@ export function Header() {
                 onClick={handleHomeClick}
                 className="link-underline text-muted hover:text-foreground transition-colors duration-200 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded-sm px-1 py-1"
               >
-                {t('nav.home')}
+                Home
               </Link>
 <Link
                 href="/about"
                 className="link-underline text-muted hover:text-foreground transition-colors duration-200 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded-sm px-1 py-1"
               >
-                {t('nav.about')}
+                About
               </Link>
             </nav>
             <ThemeToggle />
-            <LanguageToggle />
           </div>
         </div>
       </div>

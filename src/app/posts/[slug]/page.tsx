@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
 import { getPublishedPostsServer } from '@/lib/posts-server'
-import { postTitle, postExcerpt, siteUrl } from '@/lib/i18n'
 import { PostContent } from '@/components/PostContent'
 
 export async function generateStaticParams() {
@@ -17,11 +16,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   const ogImage = post.coverImageUrl || '/og-image.png'
 
-  const title = postTitle(post)
-  const description = postExcerpt(post)
+  const title = post.title
+  const description = post.excerpt
 
   return {
-    metadataBase: new URL(siteUrl),
+    metadataBase: new URL('https://thekoifmanbrief.com'),
     title,
     description,
     openGraph: {

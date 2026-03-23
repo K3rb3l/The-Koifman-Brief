@@ -2,7 +2,6 @@
 
 import { useRef } from 'react'
 import { gsap, useGSAP } from '@/lib/gsap'
-import { isRTL } from '@/lib/i18n'
 
 type CountUpProps = {
   target: number
@@ -22,9 +21,7 @@ export function CountUp({ target, className = '', prefix = '', pad = 3 }: CountU
 
     function format(n: number): string {
       const rounded = Math.round(n)
-      return isRTL
-        ? rounded.toLocaleString('fa-IR', { minimumIntegerDigits: pad })
-        : String(rounded).padStart(pad, '0')
+      return String(rounded).padStart(pad, '0')
     }
 
     el.textContent = prefix + format(0)

@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { gsap, useGSAP } from '@/lib/gsap'
-import { t } from '@/lib/i18n'
 
 function clearIntroStyles() {
   document.body.style.overflow = ''
@@ -178,7 +177,7 @@ export function LoadingAnimation() {
 
   if (!active) return null
 
-  const title = t('loading.title')
+  const title = 'THE KOIFMAN BRIEF'
 
   return (
     <div
@@ -261,7 +260,7 @@ export function LoadingAnimation() {
           className="mt-3 font-sans text-xs uppercase tracking-[0.2em]"
           style={{ color: '#6A6050', opacity: 0 }}
         >
-          {t('loading.tagline')}
+          Clarity in complexity
         </p>
       </div>
     </div>

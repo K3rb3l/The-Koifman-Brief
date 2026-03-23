@@ -4,7 +4,6 @@ import { useState, useCallback } from 'react'
 import dynamic from 'next/dynamic'
 import { useRouter } from 'next/navigation'
 import { Timestamp } from 'firebase/firestore'
-import { getFunctions, httpsCallable } from 'firebase/functions'
 import { savePost, generateSlug } from '@/lib/posts'
 import { app } from '@/lib/firebase'
 import { uploadPostAnimation, deletePostAnimation, uploadInlineImage } from '@/lib/storage'
@@ -38,9 +37,6 @@ export function ArticleEditor({ existingPost }: ArticleEditorProps) {
     category: existingPost?.category ?? 'geopolitics',
     excerpt: existingPost?.excerpt ?? '',
     body: existingPost?.body ?? '',
-    title_fa: existingPost?.title_fa ?? '',
-    excerpt_fa: existingPost?.excerpt_fa ?? '',
-    body_fa: existingPost?.body_fa ?? '',
     published: existingPost?.published ?? false,
     coverImage: null,
     coverImageUrl: existingPost?.coverImageUrl ?? '',
@@ -140,43 +136,10 @@ export function ArticleEditor({ existingPost }: ArticleEditorProps) {
         coverImageUrl,
         coverAnimationUrl: coverAnimationUrl || undefined,
         body: form.body,
-        title_fa: form.title_fa || undefined,
-        excerpt_fa: form.excerpt_fa || undefined,
-        body_fa: form.body_fa || undefined,
         published: form.published,
         createdAt: existingPost?.createdAt ?? Timestamp.now(),
         updatedAt: Timestamp.now(),
       })
-
-      // Auto-translate if no Persian content yet
-      if (!form.title_fa && !form.body_fa) {
-        try {
-          setVideoProgress('Translating to Persian...')
-          const functions = getFunctions(app)
-          const translate = httpsCallable(functions, 'translateToFarsi')
-          const result = await translate({
-            title: form.title,
-            excerpt: form.excerpt,
-            body: form.body,
-          })
-          const translated = result.data as { title: string; excerpt: string; body: string }
-
-          await savePost(slug, {
-            title_fa: translated.title,
-            excerpt_fa: translated.excerpt,
-            body_fa: translated.body,
-          }, { merge: true })
-
-          updateField('title_fa', translated.title)
-          updateField('excerpt_fa', translated.excerpt)
-          updateField('body_fa', translated.body)
-        } catch (err) {
-          console.error('Translation failed:', err)
-          // Non-blocking — post is already saved, translation just didn't work
-        } finally {
-          setVideoProgress('')
-        }
-      }
 
       router.push('/admin')
     } catch (err) {
@@ -324,48 +287,6 @@ export function ArticleEditor({ existingPost }: ArticleEditorProps) {
           )}
         </div>
       </div>
-
-      {/* Persian Translation */}
-      <details className="border border-border rounded">
-        <summary className="px-4 py-3 text-sm font-sans text-muted cursor-pointer hover:text-accent transition-colors select-none">
-          Persian Translation {form.title_fa ? '✓' : ''}
-        </summary>
-        <div className="px-4 pb-4 space-y-4">
-          <div>
-            <label className="block text-xs text-muted font-sans mb-1">Title (Persian)</label>
-            <input
-              type="text"
-              value={form.title_fa}
-              onChange={(e) => updateField('title_fa', e.target.value)}
-              placeholder="عنوان فارسی"
-              dir="rtl"
-              className="w-full px-4 py-3 rounded border border-border bg-surface text-foreground font-sans text-xl input-glow focus:outline-none focus:border-accent"
-            />
-          </div>
-          <div>
-            <label className="block text-xs text-muted font-sans mb-1">Excerpt (Persian)</label>
-            <textarea
-              value={form.excerpt_fa}
-              onChange={(e) => updateField('excerpt_fa', e.target.value)}
-              placeholder="خلاصه فارسی"
-              dir="rtl"
-              rows={2}
-              className="w-full px-4 py-3 rounded border border-border bg-surface text-foreground font-sans input-glow focus:outline-none focus:border-accent resize-none"
-            />
-          </div>
-          <div>
-            <label className="block text-xs text-muted font-sans mb-1">Body (Persian — Markdown)</label>
-            <div data-color-mode="auto" dir="rtl">
-              <MDEditor
-                value={form.body_fa}
-                onChange={(val) => updateField('body_fa', val ?? '')}
-                height={400}
-                preview="live"
-              />
-            </div>
-          </div>
-        </div>
-      </details>
 
       {/* Markdown Editor */}
       <div>
