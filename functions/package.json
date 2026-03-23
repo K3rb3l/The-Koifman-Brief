@@ -5,13 +5,20 @@
     "build": "tsc",
     "deploy": "firebase deploy --only functions"
   },
-  "engines": { "node": "22" },
+  "engines": {
+    "node": "22"
+  },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.52.0",
+    "@react-email/components": "^1.0.10",
     "firebase-admin": "^13.0.0",
     "firebase-functions": "^6.3.0",
-    "@anthropic-ai/sdk": "^0.52.0"
+    "resend": "^6.9.4",
+    "uuid": "^13.0.0"
   },
   "devDependencies": {
+    "@types/react": "^19.2.14",
+    "@types/uuid": "^10.0.0",
     "typescript": "^5.7.0"
   }
 }
