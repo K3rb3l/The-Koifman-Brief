@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from 'react'
 import { Loader2, AlertCircle, Check } from 'lucide-react'
 import { t } from '@/lib/i18n'
+import { subscribeEmail } from '@/lib/newsletter'
 
 export function SubscribeForm() {
   const [email, setEmail] = useState('')
@@ -13,14 +14,7 @@ export function SubscribeForm() {
     setStatus('loading')
 
     try {
-      const res = await fetch('https://buttondown.com/api/emails/embed-subscribe/koifman', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({ email }),
-        referrerPolicy: 'unsafe-url',
-      })
-
-      if (!res.ok) throw new Error()
+      await subscribeEmail(email)
       setStatus('success')
       setEmail('')
     } catch {
