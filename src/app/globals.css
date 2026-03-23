@@ -418,29 +418,3 @@ html {
     animation: none;
   }
 }
-
-/* RTL body font — Vazirmatn for Persian */
-[dir="rtl"] body {
-  font-family: 'Vazirmatn', system-ui, sans-serif;
-}
-
-/* RTL drop cap — float right instead of left */
-[dir="rtl"] .drop-cap > p:first-of-type::first-letter {
-  float: right;
-  padding-right: 0;
-  padding-left: 0.1em;
-}
-
-/* RTL link underline — slides from right */
-[dir="rtl"] .link-underline::after {
-  left: auto;
-  right: 0;
-}
-
-/* RTL blockquote border — right side instead of left */
-[dir="rtl"] .prose blockquote {
-  border-left: none !important;
-  border-right: 2px solid var(--ac) !important;
-  padding-left: 0;
-  padding-right: 1.5rem;
-}
