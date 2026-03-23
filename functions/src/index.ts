@@ -57,3 +57,6 @@ ${body}`,
 )
 
 export { subscribe } from './newsletter/subscribe'
+export { onPostPublished } from './newsletter/on-post-published'
+export { sendNewsletter } from './newsletter/send-newsletter'
+export { unsubscribe } from './newsletter/unsubscribe'

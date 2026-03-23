@@ -12,6 +12,7 @@
       "rewrites": [
         { "source": "/admin/**", "destination": "/admin.html" },
         { "source": "/posts/**", "destination": "/posts.html" },
+        { "source": "/unsubscribe", "function": "unsubscribe" },
         { "source": "**", "destination": "/404.html" }
       ]
     },
