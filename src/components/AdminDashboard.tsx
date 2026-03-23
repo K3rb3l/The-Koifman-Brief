@@ -8,23 +8,31 @@ import { useAuth } from '@/contexts/AuthContext'
 import { getAllPosts, deletePost as removePost } from '@/lib/posts'
 import { getAllAdmins, addAdmin, removeAdmin } from '@/lib/admins'
 import { deletePostImages } from '@/lib/storage'
+import { getDrafts, updateDraft, sendNewsletter } from '@/lib/newsletter'
+import type { NewsletterDraft } from '@/lib/newsletter'
 import { formatDate, slugToTitle } from '@/lib/utils'
 import type { Post, Admin } from '@/types/post'
-import { Pencil, Trash2, Plus, LogOut, Eye, EyeOff, UserPlus, UserMinus } from 'lucide-react'
+import { Pencil, Trash2, Plus, LogOut, Eye, EyeOff, UserPlus, UserMinus, Send, Save, Loader2 } from 'lucide-react'
 
 export function AdminDashboard() {
   const { user } = useAuth()
   const [posts, setPosts] = useState<Post[]>([])
   const [admins, setAdmins] = useState<(Admin & { uid: string })[]>([])
+  const [drafts, setDrafts] = useState<NewsletterDraft[]>([])
   const [loading, setLoading] = useState(true)
   const [newAdminEmail, setNewAdminEmail] = useState('')
   const [newAdminUid, setNewAdminUid] = useState('')
   const [showUsers, setShowUsers] = useState(false)
+  const [editingDraft, setEditingDraft] = useState<string | null>(null)
+  const [editTitle, setEditTitle] = useState('')
+  const [editExcerpt, setEditExcerpt] = useState('')
+  const [sendingDraft, setSendingDraft] = useState<string | null>(null)
 
   const loadData = async () => {
-    const [postsData, adminsData] = await Promise.all([getAllPosts(), getAllAdmins()])
+    const [postsData, adminsData, draftsData] = await Promise.all([getAllPosts(), getAllAdmins(), getDrafts()])
     setPosts(postsData)
     setAdmins(adminsData)
+    setDrafts(draftsData)
     setLoading(false)
   }
 
@@ -32,6 +40,36 @@ export function AdminDashboard() {
     if (!user) return
     loadData()
   }, [user])
+
+  const startEditing = (draft: NewsletterDraft) => {
+    setEditingDraft(draft.id)
+    setEditTitle(draft.title)
+    setEditExcerpt(draft.excerpt)
+  }
+
+  const handleSaveDraft = async (draftId: string) => {
+    await updateDraft(draftId, { title: editTitle, excerpt: editExcerpt })
+    setDrafts((prev) =>
+      prev.map((d) => (d.id === draftId ? { ...d, title: editTitle, excerpt: editExcerpt } : d)),
+    )
+    setEditingDraft(null)
+  }
+
+  const handleSendNewsletter = async (draftId: string) => {
+    if (!confirm('Send this newsletter to all subscribers?')) return
+    setSendingDraft(draftId)
+    try {
+      const { recipientCount } = await sendNewsletter(draftId)
+      setDrafts((prev) =>
+        prev.map((d) =>
+          d.id === draftId ? { ...d, status: 'sent' as const, recipientCount } : d,
+        ),
+      )
+    } catch {
+      alert('Failed to send newsletter')
+    }
+    setSendingDraft(null)
+  }
 
   const handleDelete = async (slug: string, title: string) => {
     if (!confirm(`Delete "${title}"? This cannot be undone.`)) return
@@ -140,6 +178,114 @@ export function AdminDashboard() {
           {posts.length === 0 && (
             <div className="px-4 py-8 text-center text-muted font-sans">
               No articles yet. Create your first one!
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Newsletter Section */}
+      <section>
+        <h2 className="font-serif text-lg font-bold text-foreground mb-4">
+          Newsletter ({drafts.length})
+        </h2>
+        <div className="border border-border rounded overflow-hidden">
+          {drafts.map((draft) => (
+            <div
+              key={draft.id}
+              className="px-4 py-3 border-b border-border last:border-b-0 hover:bg-surface transition-colors"
+            >
+              {editingDraft === draft.id ? (
+                <div className="space-y-3">
+                  <input
+                    type="text"
+                    value={editTitle}
+                    onChange={(e) => setEditTitle(e.target.value)}
+                    className="w-full px-3 py-2 rounded border border-border bg-surface text-foreground font-sans text-sm input-glow focus:outline-none focus:border-accent"
+                    placeholder="Title"
+                  />
+                  <textarea
+                    value={editExcerpt}
+                    onChange={(e) => setEditExcerpt(e.target.value)}
+                    rows={3}
+                    className="w-full px-3 py-2 rounded border border-border bg-surface text-foreground font-sans text-sm input-glow focus:outline-none focus:border-accent resize-none"
+                    placeholder="Excerpt"
+                  />
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handleSaveDraft(draft.id)}
+                      className="flex items-center gap-1 px-3 py-1.5 bg-accent text-white font-sans text-xs rounded hover:opacity-90 transition-opacity"
+                    >
+                      <Save size={12} /> Save
+                    </button>
+                    <button
+                      onClick={() => setEditingDraft(null)}
+                      className="px-3 py-1.5 text-muted font-sans text-xs hover:text-foreground transition-colors"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center justify-between">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-serif font-semibold text-foreground truncate">
+                        {draft.title}
+                      </h3>
+                      {draft.status === 'sent' ? (
+                        <span className="flex items-center gap-1 text-[10px] font-sans uppercase tracking-wider text-green-600 dark:text-green-400">
+                          Sent
+                        </span>
+                      ) : (
+                        <span className="flex items-center gap-1 text-[10px] font-sans uppercase tracking-wider text-amber-600 dark:text-amber-400">
+                          Draft
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2 mt-1 text-xs text-muted font-sans">
+                      {draft.status === 'sent' && draft.sentAt && (
+                        <>
+                          <span>Sent {new Date(draft.sentAt.seconds * 1000).toLocaleDateString()}</span>
+                          <span>-</span>
+                        </>
+                      )}
+                      {draft.recipientCount !== undefined && (
+                        <span>{draft.recipientCount} recipients</span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 ml-4">
+                    {draft.status === 'draft' && (
+                      <>
+                        <button
+                          onClick={() => startEditing(draft)}
+                          className="p-2 text-muted hover:text-accent transition-colors"
+                          title="Edit draft"
+                        >
+                          <Pencil size={16} />
+                        </button>
+                        <button
+                          onClick={() => handleSendNewsletter(draft.id)}
+                          disabled={sendingDraft === draft.id}
+                          className="p-2 text-muted hover:text-accent transition-colors disabled:opacity-50"
+                          title="Send newsletter"
+                        >
+                          {sendingDraft === draft.id ? (
+                            <Loader2 size={16} className="animate-spin" />
+                          ) : (
+                            <Send size={16} />
+                          )}
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+          {drafts.length === 0 && (
+            <div className="px-4 py-8 text-center text-muted font-sans">
+              No newsletter drafts. Drafts are created automatically when you publish an article.
             </div>
           )}
         </div>
