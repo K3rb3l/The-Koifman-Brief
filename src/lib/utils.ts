@@ -22,11 +22,8 @@ const CATEGORY_LABELS: Record<string, string> = {
 }
 
 export function slugToTitle(slug: string): string {
-  return (
-    CATEGORY_LABELS[slug] ??
-    slug
-      .split('-')
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ')
-  )
+  return CATEGORY_LABELS[slug] ?? slug
+    .split('-')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ')
 }
