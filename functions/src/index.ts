@@ -1,3 +1,6 @@
+import * as admin from 'firebase-admin'
+admin.initializeApp()
+
 import { onCall, HttpsError } from 'firebase-functions/v2/https'
 import { defineSecret } from 'firebase-functions/params'
 import Anthropic from '@anthropic-ai/sdk'
@@ -52,3 +55,5 @@ ${body}`,
     }
   },
 )
+
+export { subscribe } from './newsletter/subscribe'
