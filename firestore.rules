@@ -14,5 +14,13 @@ service cloud.firestore {
     match /admins/{uid} {
       allow read, write: if isAdmin();
     }
+
+    match /subscribers/{email} {
+      allow read, write: if isAdmin();
+    }
+
+    match /newsletterDrafts/{draftId} {
+      allow read, write: if isAdmin();
+    }
   }
 }
