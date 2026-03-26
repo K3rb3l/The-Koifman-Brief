@@ -8,8 +8,8 @@ import { useAuth } from '@/contexts/AuthContext'
 import { getAllPosts, deletePost as removePost } from '@/lib/posts'
 import { getAllAdmins, addAdmin, removeAdmin } from '@/lib/admins'
 import { deletePostImages } from '@/lib/storage'
-import { getDrafts, updateDraft, sendNewsletter } from '@/lib/newsletter'
-import type { NewsletterDraft } from '@/lib/newsletter'
+import { getDrafts, createDraft, updateDraft, sendNewsletter, getSubscribers, addSubscriber } from '@/lib/newsletter'
+import type { NewsletterDraft, Subscriber } from '@/lib/newsletter'
 import { formatDate, slugToTitle } from '@/lib/utils'
 import type { Post, Admin } from '@/types/post'
 import { Pencil, Trash2, Plus, LogOut, Eye, EyeOff, UserPlus, UserMinus, Send, Save, Loader2 } from 'lucide-react'
@@ -19,6 +19,9 @@ export function AdminDashboard() {
   const [posts, setPosts] = useState<Post[]>([])
   const [admins, setAdmins] = useState<(Admin & { uid: string })[]>([])
   const [drafts, setDrafts] = useState<NewsletterDraft[]>([])
+  const [subscribers, setSubscribers] = useState<Subscriber[]>([])
+  const [showSubscribers, setShowSubscribers] = useState(false)
+  const [newSubscriberEmail, setNewSubscriberEmail] = useState('')
   const [loading, setLoading] = useState(true)
   const [newAdminEmail, setNewAdminEmail] = useState('')
   const [newAdminUid, setNewAdminUid] = useState('')
@@ -27,12 +30,17 @@ export function AdminDashboard() {
   const [editTitle, setEditTitle] = useState('')
   const [editExcerpt, setEditExcerpt] = useState('')
   const [sendingDraft, setSendingDraft] = useState<string | null>(null)
+  const [composing, setComposing] = useState(false)
+  const [composeTitle, setComposeTitle] = useState('')
+  const [composeExcerpt, setComposeExcerpt] = useState('')
+  const [composeUrl, setComposeUrl] = useState('https://thekoifmanbrief.com/')
 
   const loadData = async () => {
-    const [postsData, adminsData, draftsData] = await Promise.all([getAllPosts(), getAllAdmins(), getDrafts()])
+    const [postsData, adminsData, draftsData, subscribersData] = await Promise.all([getAllPosts(), getAllAdmins(), getDrafts(), getSubscribers()])
     setPosts(postsData)
     setAdmins(adminsData)
     setDrafts(draftsData)
+    setSubscribers(subscribersData)
     setLoading(false)
   }
 
@@ -69,6 +77,41 @@ export function AdminDashboard() {
       alert('Failed to send newsletter')
     }
     setSendingDraft(null)
+  }
+
+  const handleAddSubscriber = async (e: React.FormEvent) => {
+    e.preventDefault()
+    const email = newSubscriberEmail.trim()
+    if (!email) return
+    await addSubscriber(email)
+    setSubscribers((prev) => {
+      const exists = prev.some((s) => s.email === email.toLowerCase())
+      if (exists) return prev.map((s) => s.email === email.toLowerCase() ? { ...s, status: 'active' as const } : s)
+      return [{ email: email.toLowerCase(), status: 'active' as const, subscribedAt: { seconds: Math.floor(Date.now() / 1000) } }, ...prev]
+    })
+    setNewSubscriberEmail('')
+  }
+
+  const handleCreateDraft = async () => {
+    if (!composeTitle.trim()) return
+    const id = await createDraft({
+      title: composeTitle,
+      excerpt: composeExcerpt,
+      postUrl: composeUrl,
+    })
+    setDrafts((prev) => [{
+      id,
+      postId: '',
+      title: composeTitle,
+      excerpt: composeExcerpt,
+      postUrl: composeUrl,
+      status: 'draft',
+      createdAt: { seconds: Math.floor(Date.now() / 1000) },
+    }, ...prev])
+    setComposing(false)
+    setComposeTitle('')
+    setComposeExcerpt('')
+    setComposeUrl('https://thekoifmanbrief.com/')
   }
 
   const handleDelete = async (slug: string, title: string) => {
@@ -185,9 +228,57 @@ export function AdminDashboard() {
 
       {/* Newsletter Section */}
       <section>
-        <h2 className="font-serif text-lg font-bold text-foreground mb-4">
-          Newsletter ({drafts.length})
-        </h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="font-serif text-lg font-bold text-foreground">
+            Newsletter ({drafts.length})
+          </h2>
+          <button
+            onClick={() => setComposing(!composing)}
+            className="flex items-center gap-2 px-3 py-1.5 bg-accent text-white font-sans text-xs rounded hover:opacity-90 transition-opacity"
+          >
+            <Plus size={14} /> New Newsletter
+          </button>
+        </div>
+        {composing && (
+          <div className="border border-border rounded p-4 mb-4 space-y-3">
+            <input
+              type="text"
+              value={composeTitle}
+              onChange={(e) => setComposeTitle(e.target.value)}
+              className="w-full px-3 py-2 rounded border border-border bg-surface text-foreground font-sans text-sm input-glow focus:outline-none focus:border-accent"
+              placeholder="Subject line"
+            />
+            <textarea
+              value={composeExcerpt}
+              onChange={(e) => setComposeExcerpt(e.target.value)}
+              rows={3}
+              className="w-full px-3 py-2 rounded border border-border bg-surface text-foreground font-sans text-sm input-glow focus:outline-none focus:border-accent resize-none"
+              placeholder="Email body / excerpt"
+            />
+            <input
+              type="url"
+              value={composeUrl}
+              onChange={(e) => setComposeUrl(e.target.value)}
+              className="w-full px-3 py-2 rounded border border-border bg-surface text-foreground font-sans text-sm input-glow focus:outline-none focus:border-accent"
+              placeholder="Link URL (e.g. https://thekoifmanbrief.com/posts/...)"
+            />
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleCreateDraft}
+                disabled={!composeTitle.trim()}
+                className="flex items-center gap-1 px-3 py-1.5 bg-accent text-white font-sans text-xs rounded hover:opacity-90 transition-opacity disabled:opacity-50"
+              >
+                <Save size={12} /> Create Draft
+              </button>
+              <button
+                onClick={() => setComposing(false)}
+                className="px-3 py-1.5 text-muted font-sans text-xs hover:text-foreground transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
         <div className="border border-border rounded overflow-hidden">
           {drafts.map((draft) => (
             <div
@@ -285,10 +376,66 @@ export function AdminDashboard() {
           ))}
           {drafts.length === 0 && (
             <div className="px-4 py-8 text-center text-muted font-sans">
-              No newsletter drafts. Drafts are created automatically when you publish an article.
+              No newsletter drafts yet.
             </div>
           )}
         </div>
+      </section>
+
+      {/* Subscribers Section */}
+      <section>
+        <button
+          onClick={() => setShowSubscribers(!showSubscribers)}
+          className="flex items-center gap-2 font-serif text-lg font-bold text-foreground mb-4 hover:text-accent transition-colors"
+        >
+          <span className={`transform transition-transform ${showSubscribers ? 'rotate-90' : ''}`}>▸</span>
+          Subscribers ({subscribers.filter((s) => s.status === 'active').length} active)
+        </button>
+        {showSubscribers && (
+          <>
+          <form onSubmit={handleAddSubscriber} className="flex gap-2 mb-4">
+            <input
+              type="email"
+              required
+              value={newSubscriberEmail}
+              onChange={(e) => setNewSubscriberEmail(e.target.value)}
+              placeholder="email@example.com"
+              className="flex-1 px-3 py-2 rounded border border-border bg-surface text-foreground font-sans text-sm input-glow focus:outline-none focus:border-accent"
+            />
+            <button
+              type="submit"
+              className="flex items-center gap-1 px-3 py-2 bg-accent text-white font-sans text-xs rounded hover:opacity-90 transition-opacity"
+            >
+              <UserPlus size={14} /> Add
+            </button>
+          </form>
+          <div className="border border-border rounded overflow-hidden">
+            {subscribers.map((sub) => (
+              <div
+                key={sub.email}
+                className="px-4 py-2.5 border-b border-border last:border-b-0 flex items-center justify-between"
+              >
+                <span className="font-sans text-sm text-foreground">{sub.email}</span>
+                <div className="flex items-center gap-3 text-xs font-sans text-muted">
+                  {sub.subscribedAt && (
+                    <span>{new Date(sub.subscribedAt.seconds * 1000).toLocaleDateString()}</span>
+                  )}
+                  {sub.status === 'unsubscribed' ? (
+                    <span className="text-red-500 uppercase tracking-wider text-[10px]">Unsubscribed</span>
+                  ) : (
+                    <span className="text-green-600 dark:text-green-400 uppercase tracking-wider text-[10px]">Active</span>
+                  )}
+                </div>
+              </div>
+            ))}
+            {subscribers.length === 0 && (
+              <div className="px-4 py-8 text-center text-muted font-sans">
+                No subscribers yet.
+              </div>
+            )}
+          </div>
+          </>
+        )}
       </section>
 
       {/* Admin Users Section */}

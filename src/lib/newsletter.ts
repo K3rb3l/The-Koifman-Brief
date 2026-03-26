@@ -1,6 +1,6 @@
 import { httpsCallable } from 'firebase/functions'
 import {
-  collection, query, orderBy, getDocs, doc, updateDoc,
+  collection, query, orderBy, getDocs, doc, updateDoc, setDoc, addDoc, serverTimestamp,
 } from 'firebase/firestore'
 import { db, functions } from './firebase'
 
@@ -17,6 +17,17 @@ const sendNewsletterCallable = httpsCallable(functions, 'sendNewsletter')
 export async function sendNewsletter(draftId: string): Promise<{ recipientCount: number }> {
   const result = await sendNewsletterCallable({ draftId })
   return result.data as { recipientCount: number }
+}
+
+// Create draft manually (not tied to a post)
+export async function createDraft(data: { title: string; excerpt: string; postUrl: string }): Promise<string> {
+  const ref = await addDoc(collection(db, 'newsletterDrafts'), {
+    ...data,
+    postId: '',
+    status: 'draft',
+    createdAt: serverTimestamp(),
+  })
+  return ref.id
 }
 
 // Fetch drafts
@@ -43,6 +54,37 @@ export async function getDrafts(): Promise<NewsletterDraft[]> {
   } catch {
     return []
   }
+}
+
+// Fetch subscribers
+export type Subscriber = {
+  email: string
+  status: 'active' | 'unsubscribed'
+  subscribedAt?: { seconds: number }
+  unsubscribedAt?: { seconds: number }
+}
+
+export async function getSubscribers(): Promise<Subscriber[]> {
+  try {
+    const q = query(
+      collection(db, 'subscribers'),
+      orderBy('subscribedAt', 'desc'),
+    )
+    const snap = await getDocs(q)
+    return snap.docs.map((d) => d.data() as Subscriber)
+  } catch {
+    return []
+  }
+}
+
+// Add subscriber manually (admin)
+export async function addSubscriber(email: string): Promise<void> {
+  const normalized = email.toLowerCase().trim()
+  await setDoc(doc(db, 'subscribers', normalized), {
+    email: normalized,
+    status: 'active',
+    subscribedAt: serverTimestamp(),
+  }, { merge: true })
 }
 
 // Update draft (edit title/excerpt before sending)
