@@ -13,6 +13,7 @@ import { SubscribeForm } from '@/components/SubscribeForm'
 import { ReadingProgress } from '@/components/ReadingProgress'
 import { CountUp } from '@/components/CountUp'
 import { CoverMedia } from '@/components/CoverMedia'
+import { TorchClap } from '@/components/TorchClap'
 import { gsap, useGSAP, EASE_REVEAL } from '@/lib/gsap'
 import type { Post } from '@/types/post'
 
@@ -24,6 +25,25 @@ export function PostContent() {
   const [allPosts, setAllPosts] = useState<Post[]>([])
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
+  const headerRef = useRef<HTMLElement>(null)
+
+  // Header stagger reveal
+  useGSAP(() => {
+    const el = headerRef.current
+    if (!el) return
+    const items = el.querySelectorAll('[data-reveal]')
+    gsap.from(items, { y: 20, opacity: 0, duration: 0.4, ease: EASE_REVEAL, stagger: 0.1 })
+  }, { scope: headerRef })
+
+  // Cover zoom-out on scroll
+  useGSAP(() => {
+    const cover = document.querySelector('[data-article-cover]') as HTMLElement
+    if (!cover) return
+    gsap.fromTo(cover,
+      { scale: 1.05 },
+      { scale: 1, ease: 'none', scrollTrigger: { trigger: cover, start: 'top bottom', end: 'bottom top', scrub: true } },
+    )
+  })
 
   useEffect(() => {
     if (!slug || slug === 'posts') {
@@ -101,29 +121,11 @@ export function PostContent() {
     : null
 
   const readingTime = estimateReadingTime(post.body)
-  const headerRef = useRef<HTMLElement>(null)
-
-  // Header stagger reveal
-  useGSAP(() => {
-    const el = headerRef.current
-    if (!el) return
-    const items = el.querySelectorAll('[data-reveal]')
-    gsap.from(items, { y: 20, opacity: 0, duration: 0.4, ease: EASE_REVEAL, stagger: 0.1 })
-  }, { scope: headerRef })
-
-  // Cover zoom-out on scroll
-  useGSAP(() => {
-    const cover = document.querySelector('[data-article-cover]') as HTMLElement
-    if (!cover) return
-    gsap.fromTo(cover,
-      { scale: 1.05 },
-      { scale: 1, ease: 'none', scrollTrigger: { trigger: cover, start: 'top bottom', end: 'bottom top', scrub: true } },
-    )
-  })
 
   return (
     <>
       <ReadingProgress />
+      <TorchClap slug={slug} initialClaps={post.claps ?? 0} />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
