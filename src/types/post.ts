@@ -11,6 +11,7 @@ export type Post = {
   coverImageUrl: string
   coverAnimationUrl?: string
   body: string
+  claps?: number
   published: boolean
   createdAt: Timestamp
   updatedAt: Timestamp
