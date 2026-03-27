@@ -97,9 +97,11 @@ export function TorchClap({ slug, initialClaps }: TorchClapProps) {
   const spawnSparks = useCallback((anchorEl: HTMLElement) => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
 
-    const rect = anchorEl.getBoundingClientRect()
+    // Find the SVG inside the button to position sparks at the flame tip
+    const svg = anchorEl.querySelector('svg')
+    const rect = svg ? svg.getBoundingClientRect() : anchorEl.getBoundingClientRect()
     const originX = rect.left + rect.width / 2
-    const originY = rect.top + 8
+    const originY = rect.top + rect.height * 0.15
 
     for (let i = 0; i < 8; i++) {
       const dot = document.createElement('div')
@@ -181,6 +183,7 @@ export function TorchClap({ slug, initialClaps }: TorchClapProps) {
           onClick={handleClap}
           disabled={atMax}
           aria-label={atMax ? 'Maximum claps reached' : `Clap (${userClaps}/${MAX_CLAPS})`}
+          title={atMax ? 'You\u2019ve reached the maximum of 50 claps for this article' : 'Clap for this article'}
           className="cursor-pointer transition-transform hover:scale-110 active:scale-95 disabled:cursor-default disabled:opacity-60 disabled:hover:scale-100"
         >
           <TorchSvg flameGroupRef={flameGroupRef} glowRef={glowRef} isLit={isLit} size={36} />
@@ -198,6 +201,7 @@ export function TorchClap({ slug, initialClaps }: TorchClapProps) {
           onClick={handleClap}
           disabled={atMax}
           aria-label={atMax ? 'Maximum claps reached' : `Clap (${userClaps}/${MAX_CLAPS})`}
+          title={atMax ? 'You\u2019ve reached the maximum of 50 claps for this article' : 'Clap for this article'}
           className="flex items-center gap-2 px-3 py-2 bg-surface/90 backdrop-blur-sm border border-border rounded-full shadow-lg cursor-pointer active:scale-95 disabled:cursor-default disabled:opacity-60"
         >
           <TorchSvgSimple isLit={isLit} size={20} />

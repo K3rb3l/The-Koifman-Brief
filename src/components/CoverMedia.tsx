@@ -52,9 +52,14 @@ export function CoverMedia({ imageUrl, animationUrl, alt, className = '', onLoad
 
   return (
     <>
-      {!ready && (
-        <div className="absolute inset-0 skeleton-shimmer rounded-lg" style={{ zIndex: 1 }} />
-      )}
+      {/* Static image shows instantly as poster */}
+      <img
+        src={imageUrl}
+        alt={alt}
+        className={className}
+        style={{ zIndex: 1 }}
+        onLoad={!showVideo ? onLoad : undefined}
+      />
       {showVideo ? (
         <video
           ref={videoRef}
@@ -62,10 +67,10 @@ export function CoverMedia({ imageUrl, animationUrl, alt, className = '', onLoad
           loop
           muted
           playsInline
-          preload="auto"
+          preload="metadata"
           onLoadedData={handleVideoLoaded}
           className={className}
-          style={{ zIndex: 2 }}
+          style={{ zIndex: ready ? 2 : -1, opacity: ready ? 1 : 0, transition: 'opacity 0.5s ease-in' }}
         />
       ) : null}
     </>
