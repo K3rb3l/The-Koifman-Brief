@@ -14,7 +14,12 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   if (!post) return {}
 
-  const ogImage = post.coverImageUrl || '/og-image.png'
+  // Use same-domain OG images (downloaded at build time) so social crawlers
+  // can reliably fetch them — Firebase Storage URLs cause issues with X/Twitter
+  const ext = post.coverImageUrl?.match(/\.(png|webp)/i)?.[0] ?? '.jpg'
+  const ogImage = post.coverImageUrl
+    ? `/og/posts/${slug}${ext}`
+    : '/og-image.png'
 
   const title = post.title
   const description = post.excerpt
@@ -26,6 +31,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     openGraph: {
       title,
       description,
+      url: `https://thekoifmanbrief.com/posts/${slug}`,
+      siteName: 'The Koifman Brief',
+      locale: 'en_US',
       type: 'article',
       authors: ['Shahar Koifman'],
       images: [{ url: ogImage, width: 1200, height: 630 }],

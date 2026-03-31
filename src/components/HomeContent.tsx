@@ -11,6 +11,7 @@ import { AnimatedPortrait } from '@/components/AnimatedPortrait'
 import { PostCardSkeleton } from '@/components/PostCardSkeleton'
 import { prefetchVideos } from '@/lib/video-cache'
 import { gsap, ScrollTrigger, useGSAP, EASE_REVEAL, DURATION_REVEAL } from '@/lib/gsap'
+import { MediaQuotes } from '@/components/MediaQuotes'
 import type { Post } from '@/types/post'
 
 const POSTS_PER_PAGE = 3
@@ -127,6 +128,12 @@ export function HomeContent() {
           Geopolitics, FinTech, and real estate — tracing the macro forces that create structural shifts.
         </h2>
       </section>
+
+      {page === 1 && (
+        <ScrollReveal>
+          <MediaQuotes />
+        </ScrollReveal>
+      )}
 
       {error ? (
         <div className="text-center text-red-500 font-sans py-12">{error}</div>

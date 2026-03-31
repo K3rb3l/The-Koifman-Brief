@@ -9,7 +9,7 @@
     "lint": "eslint",
     "test": "vitest run",
     "test:watch": "vitest",
-    "postbuild": "next-sitemap",
+    "postbuild": "next-sitemap && npx tsx scripts/download-og-images.ts",
     "migrate": "npx tsx scripts/migrate-posts.ts",
     "build:en": "NEXT_PUBLIC_LOCALE=en next build",
     "build:fa": "NEXT_PUBLIC_LOCALE=fa next build",
