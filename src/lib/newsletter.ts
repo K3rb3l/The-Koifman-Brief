@@ -1,6 +1,6 @@
 import { httpsCallable } from 'firebase/functions'
 import {
-  collection, query, orderBy, getDocs, doc, updateDoc, setDoc, addDoc, serverTimestamp,
+  collection, query, orderBy, getDocs, doc, updateDoc, setDoc, addDoc, deleteDoc, serverTimestamp,
 } from 'firebase/firestore'
 import { db, functions } from './firebase'
 
@@ -14,8 +14,8 @@ export async function subscribeEmail(email: string): Promise<void> {
 // Send newsletter
 const sendNewsletterCallable = httpsCallable(functions, 'sendNewsletter')
 
-export async function sendNewsletter(draftId: string): Promise<{ recipientCount: number }> {
-  const result = await sendNewsletterCallable({ draftId })
+export async function sendNewsletter(draftId: string, testEmail?: string): Promise<{ recipientCount: number }> {
+  const result = await sendNewsletterCallable({ draftId, testEmail })
   return result.data as { recipientCount: number }
 }
 
@@ -87,10 +87,32 @@ export async function addSubscriber(email: string): Promise<void> {
   }, { merge: true })
 }
 
+// Remove subscriber (admin)
+export async function removeSubscriber(email: string): Promise<void> {
+  await deleteDoc(doc(db, 'subscribers', email.toLowerCase().trim()))
+}
+
 // Update draft (edit title/excerpt before sending)
 export async function updateDraft(
   draftId: string,
   data: { title?: string; excerpt?: string },
 ): Promise<void> {
   await updateDoc(doc(db, 'newsletterDrafts', draftId), data)
+}
+
+// Click analytics
+export type ClickStat = {
+  postSlug: string
+  totalClicks: number
+  uniqueClickers: string[]
+  lastClickedAt?: { seconds: number }
+}
+
+export async function getClickStats(draftId: string): Promise<ClickStat[]> {
+  try {
+    const snap = await getDocs(collection(db, 'newsletterDrafts', draftId, 'clicks'))
+    return snap.docs.map((d) => d.data() as ClickStat)
+  } catch {
+    return []
+  }
 }

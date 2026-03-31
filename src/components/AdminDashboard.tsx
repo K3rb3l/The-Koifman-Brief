@@ -8,11 +8,11 @@ import { useAuth } from '@/contexts/AuthContext'
 import { getAllPosts, deletePost as removePost } from '@/lib/posts'
 import { getAllAdmins, addAdmin, removeAdmin } from '@/lib/admins'
 import { deletePostImages } from '@/lib/storage'
-import { getDrafts, createDraft, updateDraft, sendNewsletter, getSubscribers, addSubscriber } from '@/lib/newsletter'
-import type { NewsletterDraft, Subscriber } from '@/lib/newsletter'
+import { getDrafts, createDraft, updateDraft, sendNewsletter, getSubscribers, addSubscriber, removeSubscriber, getClickStats } from '@/lib/newsletter'
+import type { NewsletterDraft, Subscriber, ClickStat } from '@/lib/newsletter'
 import { formatDate, slugToTitle } from '@/lib/utils'
 import type { Post, Admin } from '@/types/post'
-import { Pencil, Trash2, Plus, LogOut, Eye, EyeOff, UserPlus, UserMinus, Send, Save, Loader2 } from 'lucide-react'
+import { Pencil, Trash2, Plus, LogOut, Eye, EyeOff, UserPlus, UserMinus, Send, Mail, Save, Loader2, BarChart3 } from 'lucide-react'
 
 export function AdminDashboard() {
   const { user } = useAuth()
@@ -34,6 +34,8 @@ export function AdminDashboard() {
   const [composeTitle, setComposeTitle] = useState('')
   const [composeExcerpt, setComposeExcerpt] = useState('')
   const [composeUrl, setComposeUrl] = useState('https://thekoifmanbrief.com/')
+  const [clickStats, setClickStats] = useState<Record<string, ClickStat[]>>({})
+  const [expandedStats, setExpandedStats] = useState<string | null>(null)
 
   const loadData = async () => {
     const [postsData, adminsData, draftsData, subscribersData] = await Promise.all([getAllPosts(), getAllAdmins(), getDrafts(), getSubscribers()])
@@ -79,6 +81,19 @@ export function AdminDashboard() {
     setSendingDraft(null)
   }
 
+  const handleTestNewsletter = async (draftId: string) => {
+    const email = prompt('Send test email to:')
+    if (!email) return
+    setSendingDraft(draftId)
+    try {
+      await sendNewsletter(draftId, email)
+      alert(`Test sent to ${email}`)
+    } catch {
+      alert('Failed to send test')
+    }
+    setSendingDraft(null)
+  }
+
   const handleAddSubscriber = async (e: React.FormEvent) => {
     e.preventDefault()
     const email = newSubscriberEmail.trim()
@@ -112,6 +127,24 @@ export function AdminDashboard() {
     setComposeTitle('')
     setComposeExcerpt('')
     setComposeUrl('https://thekoifmanbrief.com/')
+  }
+
+  const toggleStats = async (draftId: string) => {
+    if (expandedStats === draftId) {
+      setExpandedStats(null)
+      return
+    }
+    if (!clickStats[draftId]) {
+      const stats = await getClickStats(draftId)
+      setClickStats((prev) => ({ ...prev, [draftId]: stats }))
+    }
+    setExpandedStats(draftId)
+  }
+
+  const handleRemoveSubscriber = async (email: string) => {
+    if (!confirm(`Remove "${email}" from subscribers? This cannot be undone.`)) return
+    await removeSubscriber(email)
+    setSubscribers((prev) => prev.filter((s) => s.email !== email))
   }
 
   const handleDelete = async (slug: string, title: string) => {
@@ -356,10 +389,18 @@ export function AdminDashboard() {
                           <Pencil size={16} />
                         </button>
                         <button
+                          onClick={() => handleTestNewsletter(draft.id)}
+                          disabled={sendingDraft === draft.id}
+                          className="p-2 text-muted hover:text-accent transition-colors disabled:opacity-50"
+                          title="Send test email"
+                        >
+                          <Mail size={16} />
+                        </button>
+                        <button
                           onClick={() => handleSendNewsletter(draft.id)}
                           disabled={sendingDraft === draft.id}
                           className="p-2 text-muted hover:text-accent transition-colors disabled:opacity-50"
-                          title="Send newsletter"
+                          title="Send to all subscribers"
                         >
                           {sendingDraft === draft.id ? (
                             <Loader2 size={16} className="animate-spin" />
@@ -369,7 +410,56 @@ export function AdminDashboard() {
                         </button>
                       </>
                     )}
+                    {draft.status === 'sent' && (
+                      <button
+                        onClick={() => toggleStats(draft.id)}
+                        className={`p-2 transition-colors ${expandedStats === draft.id ? 'text-accent' : 'text-muted hover:text-accent'}`}
+                        title="Click analytics"
+                      >
+                        <BarChart3 size={16} />
+                      </button>
+                    )}
                   </div>
+                </div>
+              )}
+              {/* Click analytics panel */}
+              {expandedStats === draft.id && (
+                <div className="mt-3 pt-3 border-t border-border">
+                  <p className="text-xs font-sans font-medium text-muted uppercase tracking-wider mb-2">
+                    Click Analytics
+                  </p>
+                  {(clickStats[draft.id]?.length ?? 0) === 0 ? (
+                    <p className="text-xs text-muted font-sans">No clicks recorded yet.</p>
+                  ) : (
+                    <div className="space-y-2">
+                      {clickStats[draft.id]
+                        .sort((a, b) => b.totalClicks - a.totalClicks)
+                        .map((stat) => (
+                        <div key={stat.postSlug} className="flex items-center justify-between text-sm font-sans">
+                          <span className="text-foreground truncate flex-1 mr-4">
+                            {stat.postSlug.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
+                          </span>
+                          <div className="flex items-center gap-4 text-xs text-muted shrink-0">
+                            <span>{stat.totalClicks} clicks</span>
+                            <span>{stat.uniqueClickers?.length ?? 0} unique</span>
+                          </div>
+                        </div>
+                      ))}
+                      <div className="pt-2 border-t border-border/50 flex items-center gap-4 text-xs font-sans text-muted">
+                        <span>
+                          Total: {clickStats[draft.id].reduce((sum, s) => sum + s.totalClicks, 0)} clicks
+                        </span>
+                        <span>
+                          {new Set(clickStats[draft.id].flatMap((s) => s.uniqueClickers ?? [])).size} unique readers
+                        </span>
+                        {draft.recipientCount ? (
+                          <span>
+                            {Math.round((new Set(clickStats[draft.id].flatMap((s) => s.uniqueClickers ?? [])).size / draft.recipientCount) * 100)}% click rate
+                          </span>
+                        ) : null}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -425,6 +515,13 @@ export function AdminDashboard() {
                   ) : (
                     <span className="text-green-600 dark:text-green-400 uppercase tracking-wider text-[10px]">Active</span>
                   )}
+                  <button
+                    onClick={() => handleRemoveSubscriber(sub.email)}
+                    className="p-1 text-muted hover:text-red-500 transition-colors"
+                    title="Remove subscriber"
+                  >
+                    <Trash2 size={13} />
+                  </button>
                 </div>
               </div>
             ))}

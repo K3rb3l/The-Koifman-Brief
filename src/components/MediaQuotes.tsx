@@ -141,8 +141,9 @@ function QuillText({ text, visible }: { text: string; visible: boolean }) {
     splitRef.current?.revert()
 
     const split = SplitText.create(el, {
-      type: 'chars',
+      type: 'words,chars',
       charsClass: 'typewriter-char',
+      smartWrap: true,
     })
     splitRef.current = split
 

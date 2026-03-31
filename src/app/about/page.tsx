@@ -3,6 +3,7 @@ import { SubscribeForm } from '@/components/SubscribeForm'
 import { ScrollReveal } from '@/components/ScrollReveal'
 import { PencilSketchImage } from '@/components/PencilSketchImage'
 import { DecorativeRule } from '@/components/DecorativeRule'
+import { ContactEmailButton } from '@/components/ContactEmailButton'
 import { StaggeredBullet } from '@/components/StaggeredBullet'
 
 export const metadata: Metadata = {
@@ -73,13 +74,7 @@ export default function AboutPage() {
             Connect
           </h2>
           <div className="flex flex-col sm:flex-row gap-4 font-sans text-sm">
-            <a
-              href="mailto:shahar@thekoifmanbrief.com"
-              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 border border-accent text-accent hover:bg-accent hover:text-white transition-colors duration-200 cursor-pointer rounded-sm font-medium tracking-wide"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect width="20" height="16" x="2" y="4" rx="2" /><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" /></svg>
-              Contact via Email
-            </a>
+            <ContactEmailButton />
             <a
               href="https://www.linkedin.com/in/shahar-koifman-b29a76226"
               target="_blank"
