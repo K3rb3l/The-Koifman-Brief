@@ -36,6 +36,10 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
+# Claude Code / editor local secrets — never commit (holds personal API key)
+.claude/settings.local.json
+.vscode/settings.local.json
+
 # vercel
 .vercel
 
